@@ -1,0 +1,108 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.tec02.common;
+
+import com.alibaba.fastjson.JSONObject;
+import java.awt.HeadlessException;
+import java.util.List;
+import javax.swing.JOptionPane;
+
+/**
+ *
+ * @author Administrator
+ */
+public class Response {
+
+    private final int code;
+    private final String response;
+    private DataWareHouse wareHouse;
+    public static final String MESSAGE = "message";
+    public static final String DATA = "data";
+    public static final String RESULT = "result";
+
+    public Response(int code, String response) {
+        this.code = code;
+        this.response = response;
+        try {
+            this.wareHouse = new DataWareHouse(JSONObject.parseObject(response));
+        } catch (Exception e) {
+        }
+    }
+
+    public int getResponseCode() {
+        return code;
+    }
+
+    public String getMessage() {
+        if (code == 403) {
+            return String.format("Access permissions insufficient to access");
+        }
+        if (code == 404 || code == -1) {
+            return String.format("Cannot connect to server!\r\n%s", this.response);
+        }
+        if (!isResponeseAvalid()) {
+            return null;
+        }
+        return this.wareHouse.getString(MESSAGE, this.wareHouse.getString("Message"));
+    }
+
+    public boolean isResponeseAvalid() {
+        return this.wareHouse != null;
+    }
+
+    public <T> T getData() {
+        if (!isResponeseAvalid()) {
+            return null;
+        }
+        Object value = this.wareHouse.get(DATA);
+        if (value == null) {
+            return null;
+        }
+        return (T) value;
+    }
+    
+    public <T> List<T> getDatas() {
+        if (!isResponeseAvalid()) {
+            return null;
+        }
+        return this.wareHouse.getListJsonArray(DATA);
+    }
+
+    public String getResponse() {
+        return response;
+    }
+
+    public boolean getStatus() {
+        return isResponeseAvalid() && (this.wareHouse.getBoolean(RESULT, false)
+                || getStringEqualsIgnoreCase(RESULT, "pass"));
+    }
+
+    public boolean getStringEquals(String key, String target) {
+        try {
+            String value = this.wareHouse.getString(key);
+            return value != null && value.equals(target);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean getStringEqualsIgnoreCase(String key, String target) {
+        try {
+            String value = this.wareHouse.getString(key);
+            return value != null && value.equalsIgnoreCase(target);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isFailStatusAndShowMessage() throws HeadlessException {
+        if (!getStatus()) {
+            JOptionPane.showMessageDialog(null, getMessage());
+            return true;
+        }
+        return false;
+    }
+
+}
