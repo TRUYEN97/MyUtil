@@ -8,11 +8,13 @@ import com.tec02.common.JsonBodyAPI;
 import com.tec02.common.QueryParam;
 import com.tec02.common.Response;
 import com.tec02.common.RestAPI;
+import com.tec02.event.PopupMenuFilterAction;
 import com.tec02.gui.frameGui.Component.MyTable;
 import com.tec02.gui.panelGui.MyFilter;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
+import javax.swing.event.PopupMenuEvent;
 
 /**
  *
@@ -73,11 +75,13 @@ public class ChangeLine extends AbsDisplayAble {
                     for (int i = 0; i < rowNum; i++) {
                         tableModel.setValueAt(i, "line", input);
                     }
-                },
-                (filter) -> {
-                    myFilter.getListFromServerWithFilter(lineUrl, filter);
-                }).build();
-        this.myFilter.getListFromServerAddToFilter("Line", lineUrl);
+                }, new PopupMenuFilterAction() {
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                getMyFilter().getListFromServerWithFilter(getFilterUnit(), lineUrl);
+            }
+        }).build();
+        this.myFilter.getListFromServerWithFilter("Line", lineUrl);
         this.pnFilter.add(this.myFilter);
         this.myFilter.update();
     }
@@ -85,7 +89,7 @@ public class ChangeLine extends AbsDisplayAble {
     public void setPutUrl(String putPc) {
         this.putPc = putPc;
     }
-    
+
     @Override
     public void display(String titleName) {
         List<Map<String, Object>> datas = rootTabel.getMapRowsWithIndexsColumns(
@@ -192,7 +196,7 @@ public class ChangeLine extends AbsDisplayAble {
 
     private void btApplyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btApplyActionPerformed
         // TODO add your handling code here:
-        if(putPc == null){
+        if (putPc == null) {
             return;
         }
         QueryParam param = QueryParam.builder().addParam("lName",
@@ -200,7 +204,7 @@ public class ChangeLine extends AbsDisplayAble {
         List<Long> ids = this.tableModel.getListValue("id");
         Response response = this.aPI.sendPut(putPc, param,
                 JsonBodyAPI.builder().put("ids", ids));
-        if(response == null){
+        if (response == null) {
             return;
         }
         JOptionPane.showMessageDialog(null, response.getMessage());

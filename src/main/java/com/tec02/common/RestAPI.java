@@ -90,6 +90,9 @@ public class RestAPI {
     }
 
     public Response sendPut(String url, JsonBodyAPI body) {
+        if(body == null){
+            return sendPut(url, "");
+        }
         return sendPut(url, body.toJSONString());
     }
 

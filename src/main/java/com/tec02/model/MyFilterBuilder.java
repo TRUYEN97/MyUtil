@@ -8,7 +8,8 @@ import com.tec02.common.RestAPI;
 import com.tec02.gui.guiInterface.IfileterBuilder;
 import com.tec02.gui.panelGui.FilterUnit;
 import com.tec02.gui.panelGui.MyFilter;
-import com.tec02.gui.guiInterface.IAction;
+import com.tec02.event.IAction;
+import com.tec02.event.PopupMenuFilterAction;
 
 /**
  *
@@ -23,7 +24,7 @@ public class MyFilterBuilder implements IfileterBuilder {
     }
 
     @Override
-    public IfileterBuilder addFilter(String name, IAction selectedAction, IAction<FilterUnit> focusGainedAction) {
+    public IfileterBuilder addFilter(String name, IAction selectedAction, PopupMenuFilterAction focusGainedAction) {
         this.model.addFilter(name, selectedAction, focusGainedAction);
         return this;
     }

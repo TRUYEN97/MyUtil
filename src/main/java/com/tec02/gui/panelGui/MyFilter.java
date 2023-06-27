@@ -80,12 +80,12 @@ public class MyFilter extends Panelupdate {
         return model;
     }
 
-    public void getListFromServerAddToFilter(String filterName, String url) throws HeadlessException {
+    public void getListFromServerWithFilter(String filterName, String url) throws HeadlessException {
         FilterUnit filterUnit = this.getFilterUnit(filterName);
-        getListFromServerWithFilter(url, filterUnit);
+        MyFilter.this.getListFromServerWithFilter(filterUnit, url);
     }
 
-    public void getListFromServerWithFilter(String url, FilterUnit filterUnit) throws HeadlessException {
+    public void getListFromServerWithFilter(FilterUnit filterUnit, String url) throws HeadlessException {
         if (restAPI == null) {
             return;
         }

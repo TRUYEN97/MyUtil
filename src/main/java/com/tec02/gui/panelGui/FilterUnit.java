@@ -6,7 +6,9 @@ package com.tec02.gui.panelGui;
 
 import com.tec02.gui.Panelupdate;
 import java.util.Collection;
-import com.tec02.gui.guiInterface.IAction;
+import com.tec02.event.IAction;
+import com.tec02.event.PopupMenuFilterAction;
+import javax.swing.event.PopupMenuListener;
 
 /**
  *
@@ -15,28 +17,37 @@ import com.tec02.gui.guiInterface.IAction;
 public class FilterUnit extends Panelupdate {
 
     private IAction selectedAction;
-    private IAction<FilterUnit> focusGainedAction;
+    private PopupMenuFilterAction popupMenuListener;
+    private MyFilter myFilter;
 
     /**
      * Creates new form FilterUnit
      *
      * @param label
      * @param selectedAction
-     * @param focusGainedAction
+     * @param popupMenuListener
      */
-    public FilterUnit(String label, IAction selectedAction, IAction<FilterUnit> focusGainedAction) {
+    public FilterUnit(String label, IAction selectedAction, PopupMenuFilterAction popupMenuListener) {
         initComponents();
         this.checkbox.setText(label);
         this.selectedAction = selectedAction;
-        this.focusGainedAction = focusGainedAction;
+        this.popupMenuListener = popupMenuListener;
     }
 
+    public MyFilter getMyFilter() {
+        return myFilter;
+    }
+
+    public void setMyFilter(MyFilter myFilter) {
+        this.myFilter = myFilter;
+    }
+    
     public IAction getSelectedAction() {
         return selectedAction;
     }
 
-    public IAction<FilterUnit> getFocusGainedAction() {
-        return focusGainedAction;
+    public PopupMenuListener getPopupMenuListener() {
+        return popupMenuListener;
     }
 
     public void setCheckedAble(boolean state) {
@@ -79,8 +90,12 @@ public class FilterUnit extends Panelupdate {
         this.selectedAction = selectedAction;
     }
 
-    public void setFocusGainedAction(IAction<FilterUnit> focusGainedAction) {
-        this.focusGainedAction = focusGainedAction;
+    public final void setPopupMenuListener(PopupMenuFilterAction popupMenuListener) {
+        this.popupMenuListener = popupMenuListener;
+        this.combobox.addPopupMenuListener(popupMenuListener);
+        if(this.popupMenuListener != null){
+            this.popupMenuListener.setFilterUnit(this);
+        }
     }
     
     /**
@@ -98,11 +113,6 @@ public class FilterUnit extends Panelupdate {
         combobox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 comboboxItemStateChanged(evt);
-            }
-        });
-        combobox.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                comboboxFocusGained(evt);
             }
         });
 
@@ -130,13 +140,6 @@ public class FilterUnit extends Panelupdate {
             this.selectedAction.action(evt.getItem());
         }
     }//GEN-LAST:event_comboboxItemStateChanged
-
-    private void comboboxFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_comboboxFocusGained
-        // TODO add your handling code here:
-        if (this.focusGainedAction != null) {
-            this.focusGainedAction.action(this);
-        }
-    }//GEN-LAST:event_comboboxFocusGained
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

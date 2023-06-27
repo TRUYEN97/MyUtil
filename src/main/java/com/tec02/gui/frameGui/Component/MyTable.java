@@ -237,7 +237,7 @@ public class MyTable {
         List values = getListValue(rows, columnName);
         return values.toArray();
     }
-    
+
     public Object[] getRowValues(String columnName) {
         List values = getListValue(columnName);
         return values.toArray();
@@ -277,4 +277,33 @@ public class MyTable {
         }
         this.model.setValueAt(value, row, columnIndex);
     }
+
+    public Object getSelectedCell() {
+        int row = getSelectedRow();
+        int column = getSelectedColumn();
+        if (row < 0 || column < 0) {
+            return null;
+        }
+        return this.model.getValueAt(row, column);
+    }
+
+    private int getSelectedColumn() {
+        if (isNull(model)) {
+            return -1;
+        }
+        return this.table.getSelectedColumn();
+    }
+
+    public Map<String, Object> getMapSelectedCell() {
+        int column = getSelectedColumn();
+        if (column < 0) {
+            return null;
+        }
+        Map<String, Object> values = new HashMap();
+        values.put(COLUMN, this.model.getColumnName(column));
+        values.put(VALUE, getSelectedCell());
+        return values;
+    }
+    public static final String VALUE = "value";
+    public static final String COLUMN = "column";
 }

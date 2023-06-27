@@ -5,7 +5,9 @@
 package com.tec02.gui.panelGui;
 
 import com.tec02.common.RestAPI;
+import com.tec02.event.PopupMenuFilterAction;
 import com.tec02.model.FilterModel;
+import javax.swing.event.PopupMenuEvent;
 
 /**
  *
@@ -22,27 +24,33 @@ public class LocationFilter extends MyFilter {
 
     public LocationFilter(RestAPI api, String urlProduct, String urlStation, String urlLine) {
         super(new FilterModel(api)
-                .addFilter(PRODUCT, null, null)
-                .addFilter(STATION, null, null)
-                .addFilter(LINE, null, null));
+                .addFilter(PRODUCT, null, new PopupMenuFilterAction() {
+                    @Override
+                    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                        getMyFilter().getListFromServerWithFilter(getFilterUnit(), urlProduct);
+                    }
+                })
+                .addFilter(STATION, null, new PopupMenuFilterAction() {
+                    @Override
+                    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                        getMyFilter().getListFromServerWithFilter(getFilterUnit(), urlStation);
+                    }
+                })
+                .addFilter(LINE, null, new PopupMenuFilterAction() {
+                    @Override
+                    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                        getMyFilter().getListFromServerWithFilter(getFilterUnit(), urlLine);
+                    }
+                }));
         this.urlProduct = urlProduct;
         this.urlStation = urlStation;
         this.urlLine = urlLine;
-        getFilterUnit(PRODUCT).setFocusGainedAction((input) -> {
-            getListFromServerWithFilter(urlProduct, input);
-        });
-        getFilterUnit(STATION).setFocusGainedAction((input) -> {
-            getListFromServerWithFilter(urlStation, input);
-        });
-        getFilterUnit(LINE).setFocusGainedAction((input) -> {
-            getListFromServerWithFilter(urlLine, input);
-        });
     }
 
     public void refresh() {
-        getListFromServerAddToFilter(PRODUCT, urlProduct);
-        getListFromServerAddToFilter(STATION, urlStation);
-        getListFromServerAddToFilter(LINE, urlLine);
+        getListFromServerWithFilter(PRODUCT, urlProduct);
+        getListFromServerWithFilter(STATION, urlStation);
+        getListFromServerWithFilter(LINE, urlLine);
     }
 
     public String getProduct() {

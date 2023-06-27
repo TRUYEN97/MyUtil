@@ -4,7 +4,9 @@
  */
 package com.tec02.gui.guiInterface;
 
+import com.tec02.event.IAction;
 import com.tec02.common.RestAPI;
+import com.tec02.event.PopupMenuFilterAction;
 import com.tec02.gui.panelGui.FilterUnit;
 import com.tec02.gui.panelGui.MyFilter;
 
@@ -14,7 +16,7 @@ import com.tec02.gui.panelGui.MyFilter;
  */
 public interface IfileterBuilder {
 
-    IfileterBuilder addFilter(String name,  IAction selectedAction, IAction<FilterUnit> focusGainedAction);
+    IfileterBuilder addFilter(String name,  IAction selectedAction, PopupMenuFilterAction focusGainedAction);
 
     IfileterBuilder addFilter(FilterUnit filterUnit);
 

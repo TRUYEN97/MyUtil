@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
-import com.tec02.gui.guiInterface.IAction;
+import com.tec02.event.IAction;
+import com.tec02.event.PopupMenuFilterAction;
 
 /**
  *
@@ -26,9 +27,9 @@ public class FilterModel {
         this.FilterUnits = new ArrayList<>();
     }
 
-    public FilterModel addFilter(String name, IAction selectedAction, IAction<FilterUnit> focusEventAction) {
+    public FilterModel addFilter(String name, IAction selectedAction, PopupMenuFilterAction popupMenuListener) {
         name = name.trim();
-        this.FilterUnits.add(new FilterUnit(name, selectedAction, focusEventAction));
+        this.FilterUnits.add(new FilterUnit(name, selectedAction, popupMenuListener));
         return this;
     }
     
