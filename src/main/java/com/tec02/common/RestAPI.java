@@ -7,6 +7,10 @@ package com.tec02.common;
 import java.awt.Cursor;
 import java.io.File;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -17,11 +21,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 
 /**
  *
@@ -46,30 +53,49 @@ public class RestAPI {
         this.component = component;
     }
 
-    public Response uploadFile(String url, String key, File file, String filePath) {
-        if (filePath == null || filePath.isBlank()) {
+    public static void main(String[] args) {
+        FileInfo fileInfo = new FileInfo(FileInfo.type.FILE);
+        fileInfo.setFile(new File("C:\\Users\\Administrator\\Desktop\\ambitconfig.txt"));
+        fileInfo.setName("init/pom.xml");
+        RestAPI aPI = new RestAPI();
+        aPI.setJwtToken("Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJzdWIiOiJBZG1pbmlzdGF0b3IiLCJpYXQiOjE2ODgwODk1OTgsImV4cCI6MTY4ODA5MzE5OH0.6iCB4VGY5C_qJcakitHcXZfLpnc9S2NFF4e9Z29IpjI");
+        Response response = aPI.uploadFile("http://localhost:8081/api/v1/file",
+                JsonBodyAPI.builder().put("description", "df").toString(),
+                fileInfo);
+        System.out.println(response.getMessage());
+    }
+
+    public Response uploadFile(String url, String data, FileInfo... FileInfos) {
+        if (data == null || data.isBlank()) {
             throw new NullPointerException("filePath must not be null or empty!");
         }
         HttpPost httpPost = new HttpPost(url);
-        httpPost.setEntity(MultipartEntityBuilder.create()
-                .addBinaryBody(key, file, ContentType.DEFAULT_BINARY, filePath)
-                .build());
-        return execute(httpPost);
-    }
-
-    public Response uploadFile(String url, String key, InputStream inputStream, String filePath) {
-        if (filePath == null || filePath.isBlank()) {
-            throw new NullPointerException("filePath must not be null or empty!");
+        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+        for (FileInfo file : FileInfos) {
+            switch (file.getType()) {
+                case FILE -> {
+                    String name = file.getName();
+                    FileBody body;
+                    if (name == null) {
+                        body = new FileBody((File) file.getFile(), ContentType.DEFAULT_BINARY);
+                    } else {
+                        body = new FileBody((File) file.getFile(), ContentType.DEFAULT_BINARY, file.getName());
+                    }
+                    entityBuilder.addPart("file", body);
+                }
+                case BYTE ->
+                    entityBuilder.addBinaryBody("file", (byte[]) file.getFile(),
+                            ContentType.DEFAULT_BINARY, file.getName());
+                case INPUT_STREAM ->
+                    entityBuilder.addBinaryBody("file", (InputStream) file.getFile(),
+                            ContentType.DEFAULT_BINARY, file.getName());
+                default ->
+                    throw new AssertionError("invalid file type");
+            }
         }
-        HttpPost httpPost = new HttpPost(url);
-        httpPost.setEntity(MultipartEntityBuilder.create()
-                .addBinaryBody(key, inputStream, ContentType.DEFAULT_BINARY, filePath)
-                .build());
-        return execute(httpPost);
-    }
-
-    public Response uploadFile(String url, File file, String filePath) {
-        return uploadFile(url, "file", file, filePath);
+        StringBody entity = new StringBody(data, ContentType.TEXT_PLAIN);
+        entityBuilder.addPart("entity", entity);
+        return executeHaveMultiBody(httpPost, entityBuilder);
     }
 
     public Response sendPost(String url, QueryParam param, JsonBodyAPI body) {
@@ -82,7 +108,7 @@ public class RestAPI {
 
     public Response sendPost(String url, String body) {
         HttpPost request = new HttpPost(url);
-        return requestHaveStringBody(request, body);
+        return executeHaveStringBody(request, body);
     }
 
     public Response sendPut(String url, QueryParam param, JsonBodyAPI body) {
@@ -90,7 +116,7 @@ public class RestAPI {
     }
 
     public Response sendPut(String url, JsonBodyAPI body) {
-        if(body == null){
+        if (body == null) {
             return sendPut(url, "");
         }
         return sendPut(url, body.toJSONString());
@@ -98,7 +124,7 @@ public class RestAPI {
 
     public Response sendPut(String url, String body) {
         HttpPut request = new HttpPut(url);
-        return requestHaveStringBody(request, body);
+        return executeHaveStringBody(request, body);
     }
 
     public Response sendGet(String url) {
@@ -119,20 +145,6 @@ public class RestAPI {
         return sendDelete(createUrl(param, url));
     }
 
-    public Response requestHaveEntity(HttpEntityEnclosingRequestBase request, HttpEntity entity) {
-        request.setEntity(entity);
-        return execute(request);
-    }
-
-    public Response requestHaveStringBody(HttpEntityEnclosingRequestBase request, String body) {
-        try {
-            return requestHaveEntity(request, new StringEntity(body));
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        }
-    }
-
     public JwtUtil getJwtUtil() {
         return jwtUtil;
     }
@@ -141,15 +153,34 @@ public class RestAPI {
         this.jwtUtil.setJWT(stringJWT);
     }
 
+    private Response executeHaveMultiBody(HttpEntityEnclosingRequestBase request, MultipartEntityBuilder entityBuilder) {
+        request.setEntity(entityBuilder.build());
+        request.addHeader("Content-Type", "multipart/form-data; boundary=<calculated when request is sent>");
+        return execute(request);
+    }
+
+    private Response executeHaveStringBody(HttpEntityEnclosingRequestBase request, String entity) {
+        try {
+            request.setEntity(new StringEntity(entity));
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+        request.setHeader("Content-Type", "application/json;charset=UTF-8");
+        return execute(request);
+    }
+
     private synchronized Response execute(HttpUriRequest request) {
         if (component != null) {
             this.component.setCursor(new Cursor(Cursor.WAIT_CURSOR));
         }
-        setDefaultHeader(request);
-        try ( CloseableHttpClient httpClient = HttpClients.createDefault();  CloseableHttpResponse response = httpClient.execute(request)) {
-            String body = EntityUtils.toString(response.getEntity());
-            int statusCode = response.getStatusLine().getStatusCode();
-            return new Response(statusCode, body);
+        try ( CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            request.addHeader("Accept", "*/*");
+            request.addHeader(AUTHORIZATION_KEY, jwtUtil.getJWT());
+            try ( CloseableHttpResponse response = httpClient.execute(request)) {
+                String body = EntityUtils.toString(response.getEntity());
+                int statusCode = response.getStatusLine().getStatusCode();
+                return new Response(statusCode, body);
+            }
         } catch (Exception e) {
             return new Response(-1, JsonBodyAPI.builder()
                     .put(Response.RESULT, false)
@@ -166,12 +197,6 @@ public class RestAPI {
             url = String.format("%s%s", url, param);
         }
         return url;
-    }
-
-    private void setDefaultHeader(HttpUriRequest Request) {
-        Request.addHeader("Content-Type", "application/json;charset=UTF-8");
-        Request.addHeader("Accept", "*/*");
-        Request.addHeader(AUTHORIZATION_KEY, jwtUtil.getJWT());
     }
 
 }

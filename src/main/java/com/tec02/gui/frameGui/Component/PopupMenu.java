@@ -6,6 +6,7 @@ package com.tec02.gui.frameGui.Component;
 
 import java.awt.Component;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
@@ -42,5 +43,9 @@ public class PopupMenu {
     
     public void show(Component component ,int x, int y){
         this.popupMenu.show(component, x, y);
+    }
+    
+    public void show(MouseEvent e){
+        show(e.getComponent(), e.getX(), e.getY());
     }
 }

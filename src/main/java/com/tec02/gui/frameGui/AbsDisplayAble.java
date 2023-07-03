@@ -57,7 +57,6 @@ public abstract class AbsDisplayAble extends javax.swing.JFrame {
         for (JFrame jFrame : subFrame) {
             jFrame.dispose();
         }
-        subFrame.clear();
     }
 
     public void display(String titleName) {
