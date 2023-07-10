@@ -12,19 +12,19 @@ import java.util.List;
  *
  * @author Administrator
  */
-public class QueryParam {
+public class RequestParam {
 
     private final List<String[]> params;
 
-    public static QueryParam builder() {
-        return new QueryParam();
+    public static RequestParam builder() {
+        return new RequestParam();
     }
 
-    private QueryParam() {
+    public RequestParam() {
         this.params = new ArrayList<>();
     }
 
-    public QueryParam addParam(String key, Object... values) {
+    public RequestParam addParam(String key, Object... values) {
         if (key != null && values != null && values.length > 0) {
             for (Object value : values) {
                 if(value == null){
@@ -36,7 +36,7 @@ public class QueryParam {
         return this;
     }
     
-    public QueryParam addParam(String key, Collection values) {
+    public RequestParam addParam(String key, Collection values) {
         return addParam(key, values.toArray());
     }
 

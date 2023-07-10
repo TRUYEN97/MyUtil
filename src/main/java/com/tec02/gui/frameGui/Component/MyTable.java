@@ -4,7 +4,10 @@
  */
 package com.tec02.gui.frameGui.Component;
 
+import com.tec02.event.IAction;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,22 +25,60 @@ import javax.swing.table.DefaultTableModel;
 public class MyTable {
 
     private List<String> columns;
-    private List<Object[]> rows;
     private final JTable table;
     private DefaultTableModel model;
+    private PopupMenu menu;
+    private IAction<MouseEvent> doubleClickAction;
 
     public MyTable(JTable table) {
         if (table == null) {
             throw new NullPointerException("Table cannot be null");
         }
         this.table = table;
-        rows = new ArrayList<>();
+        this.table.addMouseMotionListener(new MouseAdapter() {
+           
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                Point point = e.getPoint();
+                int row = table.rowAtPoint(point);
+                int column = table.columnAtPoint(point);
+                if (row >= 0 && column >= 0) {
+                    Object value = table.getValueAt(row, column);
+                    table.setToolTipText(String.valueOf(value));
+                }
+            }
+        });
+        this.table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (menu != null && e.getButton() == MouseEvent.BUTTON3) {
+                    menu.show(table, e.getX(), e.getY());
+                } else if (e.getClickCount() > 1 && e.getButton() == MouseEvent.BUTTON1) {
+                    if(doubleClickAction != null){
+                        doubleClickAction.action(e);
+                    }
+                }
+            }
+        });
+        menu = new PopupMenu();
     }
 
+    public void setMenu(PopupMenu menu) {
+        this.menu = menu;
+    }
+
+    public PopupMenu getMenu() {
+        return menu;
+    }
+    
     public void initTable(Collection<String> cols) {
         initTable(cols, null, null);
     }
 
+    public void setDoubleClickAction(IAction<MouseEvent> doubleClickAction) {
+        this.doubleClickAction = doubleClickAction;
+    }
+    
     public void setMouseAdapter(MouseAdapter mouseAdapter) {
         if (this.table == null) {
             return;
@@ -110,7 +151,6 @@ public class MyTable {
         if (isNull(model)) {
             return;
         }
-        this.rows.clear();
         this.model.setRowCount(0);
     }
 
@@ -127,12 +167,10 @@ public class MyTable {
         if (isNull(model)) {
             return;
         }
-        this.rows.remove(index);
         this.model.removeRow(index);
     }
 
     protected void addRow(Object[] row) {
-        this.rows.add(row);
         if (isNull(model) || isNull(table)) {
             return;
         }
@@ -181,10 +219,10 @@ public class MyTable {
         return maps;
     }
 
-    private Map<String, Object> getDataWithCoumns(List<String> columns1, int index) {
+    public Map<String, Object> getDataWithCoumns(List<String> columns, int index) {
         Map<String, Object> data;
         data = new HashMap<>();
-        for (String column : columns1) {
+        for (String column : columns) {
             data.put(column, getRowValue(index, column));
         }
         return data;
@@ -225,6 +263,15 @@ public class MyTable {
         return s;
     }
 
+    public <T> T getRowSelectedValue(String columnName) {
+        int columnIndex;
+        int rowSelected = getSelectedRow();
+        if ((columnIndex = columns.indexOf(columnName)) == -1 || rowSelected < -1) {
+            return null;
+        }
+        return (T) this.model.getValueAt(rowSelected, columnIndex);
+    }
+    
     public Object getRowValue(int row, String columnName) {
         int columnIndex;
         if ((columnIndex = columns.indexOf(columnName)) == -1) {
@@ -306,4 +353,23 @@ public class MyTable {
     }
     public static final String VALUE = "value";
     public static final String COLUMN = "column";
+
+    public void setDatas(List<? extends Map<String, Object>> list) {
+        this.clear();
+        if(list == null || list.isEmpty()){
+            return;
+        }
+        initTable(list.get(0).keySet());
+        for (Map<String, Object> map : list) {
+            addRow(map);
+        }
+    }
+
+    public Map<String, Object> getRowSelectedMapValue() {
+        int index = getSelectedRow();
+        if(index == -1){
+            return Map.of();
+        }
+        return getDataWithCoumns(columns, index);
+    }
 }

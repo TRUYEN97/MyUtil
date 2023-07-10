@@ -5,6 +5,7 @@
 package com.tec02.common;
 
 import com.alibaba.fastjson.JSONObject;
+import java.util.Set;
 
 /**
  *
@@ -14,16 +15,28 @@ public class JsonBodyAPI {
     private final JSONObject body;
 
     public static JsonBodyAPI builder(){
-        return  new JsonBodyAPI();
+        return new JsonBodyAPI();
     }
     
-    private JsonBodyAPI() {
+    public JsonBodyAPI() {
         this.body = new JSONObject();
     }
     
     public JsonBodyAPI put(String key, Object value){
         this.body.put(key, value);
         return this;
+    }
+    
+    public Set<String> getKeySet(){
+        return this.body.keySet();
+    }
+    
+    public boolean isEmpty(){
+        return this.body.isEmpty();
+    }
+    
+    public int size(){
+        return this.body.size();
     }
 
     @Override
@@ -33,5 +46,9 @@ public class JsonBodyAPI {
     
     public String toJSONString(){
         return this.body.toJSONString();
+    }
+
+    public String getString(String key) {
+        return this.body.getString(key);
     }
 }

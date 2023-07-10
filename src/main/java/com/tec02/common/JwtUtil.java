@@ -38,24 +38,28 @@ public class JwtUtil {
     }
 
     public String getString(String key) {
-        if (payload == null || key == null) {
+        if (isLogout(key)) {
             return null;
         }
         return payload.getString(key);
     }
 
     public Integer getInteger(String key) {
-        if (payload == null || key == null) {
+        if (isLogout(key)) {
             return null;
         }
         return payload.getInteger(key);
     }
 
     private Long getLong(String key) {
-        if (payload == null || key == null) {
+        if (isLogout(key)) {
             return null;
         }
         return payload.getLong(key);
+    }
+
+    private boolean isLogout(String key) {
+        return payload == null || key == null;
     }
 
     public String getString(String key, String defaultVal) {

@@ -30,6 +30,11 @@ public class MyFilter extends Panelupdate {
      * @param model
      */
     public MyFilter(FilterModel model) {
+        this(model.getAPI());
+        update(model);
+    }
+    
+    public MyFilter(RestAPI restAPI) {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -41,14 +46,15 @@ public class MyFilter extends Panelupdate {
             ex.printStackTrace();
         }
         initComponents();
-        update(model);
+        this.restAPI = restAPI;
+        this.model = new FilterModel(restAPI);
     }
 
     public void setRestAPI(RestAPI restAPI) {
         this.restAPI = restAPI;
     }
 
-    private void update(FilterModel model) {
+    protected void update(FilterModel model) {
         this.model = model;
         this.restAPI = model.getAPI();
         this.setLayout(new GridLayout(model.count(), 1, 5, 0));

@@ -28,6 +28,9 @@ public class FileInfo {
     }
 
     public String getName() {
+        if(name == null){
+            return  null;
+        }
         return name.toString();
     }
 

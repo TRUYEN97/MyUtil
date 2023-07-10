@@ -6,17 +6,16 @@ package com.tec02.gui.frameGui;
 
 import com.alibaba.fastjson.JSONObject;
 import com.tec02.common.JsonBodyAPI;
-import com.tec02.common.QueryParam;
-import com.tec02.common.Response;
+import com.tec02.common.RequestParam;
 import com.tec02.common.RestAPI;
+import com.tec02.common.RestUtil;
+import com.tec02.event.IAction;
 import com.tec02.gui.frameGui.Component.PopupMenu;
 import com.tec02.gui.frameGui.Component.MyTable;
 import com.tec02.gui.panelGui.LocationFilter;
 import java.awt.HeadlessException;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JOptionPane;
 
 /**
@@ -27,15 +26,11 @@ public class ManageEntityHaveLocation extends AbsDisplayAble {
 
     private final LocationFilter locationFilter;
     private final MyTable myTable;
-    private final RestAPI aPI;
+    private final RestUtil restUtil;
     private PopupMenu menu;
     private String getUrl;
     private String addUrl;
     private String deleteUrl;
-    private static final ShowText showText;
-    static {
-        showText = new ShowText();
-    }
 
     /**
      * Creates new form ManagePC
@@ -48,28 +43,12 @@ public class ManageEntityHaveLocation extends AbsDisplayAble {
     public ManageEntityHaveLocation(RestAPI aPI, String productGet, String stationGet, String lineGet) {
         super();
         initComponents();
-        addSubFrame(showText);
-        this.aPI = aPI;
         this.myTable = new MyTable(tbShow);
+        this.restUtil = new RestUtil(aPI);
         this.locationFilter = new LocationFilter(
                 aPI, productGet, stationGet, lineGet);
         this.menu = new PopupMenu();
-        this.myTable.setMouseAdapter(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (menu != null && e.getButton() == MouseEvent.BUTTON3) {
-                    menu.show(tbShow, e.getX(), e.getY());
-                }else if(e.getClickCount() > 1 && e.getButton() == MouseEvent.BUTTON1){
-                    Map<String, Object> cellValue = myTable.getMapSelectedCell();
-                    if(cellValue == null){
-                        return;
-                    }
-                    String columnName = String.valueOf(cellValue.get(MyTable.COLUMN));
-                    String value = String.valueOf(cellValue.get(MyTable.VALUE));
-                    showText.display(columnName, value);
-                }
-            }
-        });
+        this.myTable.setMenu(menu);
         this.pnFilter.add(this.locationFilter);
         this.locationFilter.update();
     }
@@ -98,66 +77,40 @@ public class ManageEntityHaveLocation extends AbsDisplayAble {
         return menu;
     }
     
-     public void getList(String name) throws HeadlessException {
-        if (getUrl == null) {
-            JOptionPane.showMessageDialog(null, "url == null");
-            return;
-        }
-        if (myTable == null) {
-            return;
-        }
-        this.myTable.clear();
-        String pSelected = getProduct();
-        String sSelected = getStation();
-        String lSelected = getLine();
-        Response response = this.aPI.sendGet(getUrl,
-                QueryParam.builder().addParam("pName", pSelected)
-                        .addParam("sName", sSelected)
-                        .addParam("lName", lSelected)
+    public void setDoubleClickAction(IAction<MouseEvent> action){
+        this.myTable.setDoubleClickAction(action);
+    }
+
+    public void getList(String name) throws HeadlessException {
+        List<JSONObject> items = this.restUtil.getList(getUrl,
+                RequestParam.builder()
+                        .addParam("pName", getProduct())
+                        .addParam("sName", getStation())
+                        .addParam("lName", getLine())
                         .addParam("name", name));
-        if (response.isFailStatusAndShowMessage()) {
-            return;
-        }
-        List<JSONObject> items = response.getDatas();
         if (items == null || items.isEmpty()) {
             return;
         }
-        this.myTable.initTable(items.get(0).keySet());
-        for (var item : items) {
-            this.myTable.addRow(item);
+        if (myTable != null) {
+            myTable.initTable(items.get(0).keySet());
+            for (var item : items) {
+                myTable.addRow(item);
+            }
         }
     }
 
     public void addNew(JsonBodyAPI bodyAPI) throws HeadlessException {
         // TODO add your handling code here:
-        if (addUrl == null) {
-            JOptionPane.showMessageDialog(null, "url == null");
-            return;
-        }
-        String pSelected = getProduct();
-        String sSelected = getStation();
-        String lSelected = getLine();
-        Response response = this.aPI.sendPost(addUrl,
-                QueryParam.builder().addParam("pName", pSelected)
-                        .addParam("sName", sSelected)
-                        .addParam("lName", lSelected), bodyAPI);
-        if (response.isFailStatusAndShowMessage()) {
-            return;
-        }
+        this.restUtil.addNew(addUrl, new RequestParam()
+                .addParam("pName", getProduct())
+                .addParam("sName", getStation())
+                .addParam("lName", getLine()), bodyAPI);
         this.getList(null);
     }
 
     public void deleteSeleled() {
-        if (deleteUrl == null) {
-            JOptionPane.showMessageDialog(null, "url == null");
-            return;
-        }
-        if (myTable == null) {
-            JOptionPane.showMessageDialog(null, "table == null");
-            return;
-        }
         int[] indexs = myTable.getSelectedRows();
-        if(indexs == null || indexs.length == 0){
+        if (indexs == null || indexs.length == 0) {
             JOptionPane.showMessageDialog(null, "Nothing to delete");
             return;
         }
@@ -165,13 +118,7 @@ public class ManageEntityHaveLocation extends AbsDisplayAble {
         if (option != JOptionPane.OK_OPTION) {
             return;
         }
-        Response response = this.aPI.sendDelete(deleteUrl,
-                QueryParam.builder()
-                        .addParam("id",
-                                myTable.getListValue(indexs, "id")));
-        if (!response.getStatus()) {
-            JOptionPane.showMessageDialog(null, response.getMessage());
-        }
+        this.restUtil.delete(deleteUrl, RequestParam.builder().addParam("id", List.of(indexs)));
         getList(null);
     }
 
@@ -291,12 +238,12 @@ public class ManageEntityHaveLocation extends AbsDisplayAble {
     private void btFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btFindActionPerformed
         // TODO add your handling code here:
         String name = txtSearch.getText();
-        this.getList(name.isBlank()? null: name);
+        this.getList(name.isBlank() ? null : name);
     }//GEN-LAST:event_btFindActionPerformed
 
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
         // TODO add your handling code here:
-       showMenu(evt);
+        showMenu(evt);
     }//GEN-LAST:event_formMouseClicked
 
     private void jScrollPane1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane1MouseClicked

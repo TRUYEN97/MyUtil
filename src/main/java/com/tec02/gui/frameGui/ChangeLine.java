@@ -5,7 +5,7 @@
 package com.tec02.gui.frameGui;
 
 import com.tec02.common.JsonBodyAPI;
-import com.tec02.common.QueryParam;
+import com.tec02.common.RequestParam;
 import com.tec02.common.Response;
 import com.tec02.common.RestAPI;
 import com.tec02.event.PopupMenuFilterAction;
@@ -199,7 +199,7 @@ public class ChangeLine extends AbsDisplayAble {
         if (putPc == null) {
             return;
         }
-        QueryParam param = QueryParam.builder().addParam("lName",
+        RequestParam param = RequestParam.builder().addParam("lName",
                 this.myFilter.getModel().getSelected("Line"));
         List<Long> ids = this.tableModel.getListValue("id");
         Response response = this.aPI.sendPut(putPc, param,

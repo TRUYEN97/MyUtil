@@ -6,7 +6,7 @@ package com.tec02.gui.frameGui;
 
 import com.alibaba.fastjson.JSONObject;
 import com.tec02.common.JsonBodyAPI;
-import com.tec02.common.QueryParam;
+import com.tec02.common.RequestParam;
 import com.tec02.common.Response;
 import com.tec02.common.RestAPI;
 import com.tec02.gui.frameGui.Component.MyTable;
@@ -192,7 +192,7 @@ public class ConfigGui extends AbsDisplayAble {
             return;
         }
         Object[] ids = this.tableModel.getRowValues(index, "id");
-        Response response = this.api.sendDelete(this.deleteUrl, QueryParam.builder().addParam("id", ids));
+        Response response = this.api.sendDelete(this.deleteUrl, RequestParam.builder().addParam("id", ids));
         if(response.isFailStatusAndShowMessage()){
             return;
         }

@@ -31,7 +31,7 @@ public class FilterUnit extends Panelupdate {
         initComponents();
         this.checkbox.setText(label);
         this.selectedAction = selectedAction;
-        this.popupMenuListener = popupMenuListener;
+        this.setPopupMenuListener(popupMenuListener);
     }
 
     public MyFilter getMyFilter() {

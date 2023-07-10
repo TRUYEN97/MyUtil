@@ -31,21 +31,17 @@ public class Response {
         }
     }
 
-    public int getResponseCode() {
-        return code;
-    }
-
     public String getMessage() {
         if (code == 403) {
             return String.format("Access permissions insufficient to access");
         }
         if (code == 404 || code == -1) {
-            return String.format("Cannot connect to server!\r\n%s", this.response);
+            return  this.response;
         }
         if (!isResponeseAvalid()) {
             return null;
         }
-        return this.wareHouse.getString(MESSAGE, this.wareHouse.getString("Message"));
+        return this.wareHouse.getString(MESSAGE, this.wareHouse.getString("Message", response));
     }
 
     public boolean isResponeseAvalid() {
@@ -103,6 +99,10 @@ public class Response {
             return true;
         }
         return false;
+    }
+
+    public int getCode() {
+        return code;
     }
 
 }

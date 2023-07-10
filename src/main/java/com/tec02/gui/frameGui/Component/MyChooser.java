@@ -67,8 +67,10 @@ public class MyChooser {
         return this.files;
     }
 
-    public int showSaveDialog(Component component) {
-        String defaultName = String.format("%s.xlsx", System.currentTimeMillis());
+    public int showSaveDialog(Component component, String defaultName) {
+        if(defaultName == null){
+            defaultName = String.format("%s.txt", System.currentTimeMillis());
+        }
         JFileChooser myChooser = chooserFileOnly();
         myChooser.setDialogTitle("Save");
         if (defaultName != null) {
@@ -89,9 +91,10 @@ public class MyChooser {
     private JFileChooser chooserFileOnly() {
         JFileChooser myChooser = new JFileChooser(currDir);
         myChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        myChooser.setFileFilter(new FileNameExtensionFilter("*.csv", "csv"));
-        myChooser.setFileFilter(new FileNameExtensionFilter("*.txt", "txt"));
-        myChooser.setFileFilter(new FileNameExtensionFilter("*.xlsx", "xlsx"));
+        myChooser.setFileFilter(new FileNameExtensionFilter("*Csv", "csv"));
+        myChooser.setFileFilter(new FileNameExtensionFilter("*xlsx", "xlsx"));
+        myChooser.setFileFilter(new FileNameExtensionFilter("*Java", "jar"));
+        myChooser.setFileFilter(new FileNameExtensionFilter("*Text", "txt"));
         return myChooser;
     }
 

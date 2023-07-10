@@ -23,23 +23,24 @@ public class LocationFilter extends MyFilter {
     public final String urlLine;
 
     public LocationFilter(RestAPI api, String urlProduct, String urlStation, String urlLine) {
-        super(new FilterModel(api)
+        super(api);
+        update(new FilterModel(api)
                 .addFilter(PRODUCT, null, new PopupMenuFilterAction() {
                     @Override
                     public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                        getMyFilter().getListFromServerWithFilter(getFilterUnit(), urlProduct);
+                        getListFromServerWithFilter(getFilterUnit(), urlProduct);
                     }
                 })
                 .addFilter(STATION, null, new PopupMenuFilterAction() {
                     @Override
                     public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                        getMyFilter().getListFromServerWithFilter(getFilterUnit(), urlStation);
+                        getListFromServerWithFilter(getFilterUnit(), urlStation);
                     }
                 })
                 .addFilter(LINE, null, new PopupMenuFilterAction() {
                     @Override
                     public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                        getMyFilter().getListFromServerWithFilter(getFilterUnit(), urlLine);
+                        getListFromServerWithFilter(getFilterUnit(), urlLine);
                     }
                 }));
         this.urlProduct = urlProduct;
