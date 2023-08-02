@@ -5,6 +5,7 @@
 package com.tec02.gui.frameGui.Component;
 
 import java.awt.Component;
+import java.awt.HeadlessException;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -45,17 +46,12 @@ public class MyChooser {
         if (component == null) {
             return - 1;
         }
-        JFileChooser myChooser = new JFileChooser(currDir);
-        myChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        myChooser.setAcceptAllFileFilterUsed(false);
+        JFileChooser myChooser = shooseFolder();
         return saveCurrDir(myChooser, myChooser.showOpenDialog(component));
     }
 
     public int showSelectMutiFolder(Component component) {
-        JFileChooser myChooser = new JFileChooser(currDir);
-        myChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        myChooser.setAcceptAllFileFilterUsed(false);
-        myChooser.setMultiSelectionEnabled(true);
+        JFileChooser myChooser = showMutiFolder();
         return saveCurrDir(myChooser, myChooser.showOpenDialog(component));
     }
 
@@ -81,6 +77,34 @@ public class MyChooser {
 
     public int showOpenFile(Component component, String dir) {
         JFileChooser myChooser = chooserFileOnly();
+        return showOpen(myChooser, dir, component);
+    }
+    
+    public int showOpenMitiFile(Component component, String dir) {
+        JFileChooser myChooser = chooserFileOnly();
+        myChooser.setMultiSelectionEnabled(true);
+        return showOpen(myChooser, dir, component);
+    }
+    
+    public int showOpenFileOrFolder(Component component, String dir) {
+        JFileChooser myChooser = chooserFileOrFolder();
+        return showOpen(myChooser, dir, component);
+    }
+    
+    public int showOpenMutiFileOrFolder(Component component, String dir) {
+        JFileChooser myChooser = chooserMutiFileOrFolder();
+        return showOpen(myChooser, dir, component);
+    }
+    
+    public File getNewFile() {
+        return newFile;
+    }
+
+    public void setNewFile(File newFile) {
+        this.newFile = newFile;
+    }
+
+    private int showOpen(JFileChooser myChooser, String dir, Component component) throws HeadlessException {
         myChooser.setDialogTitle("Open");
         if (dir != null) {
             myChooser.setSelectedFile(new File(dir));
@@ -88,13 +112,25 @@ public class MyChooser {
         return saveCurrDir(myChooser, myChooser.showOpenDialog(component));
     }
 
+    private JFileChooser chooserMutiFileOrFolder() {
+        JFileChooser myChooser = chooserFileOrFolder();
+        myChooser.setMultiSelectionEnabled(true);
+        return myChooser;
+    }
+    private JFileChooser chooserFileOrFolder() {
+        JFileChooser myChooser = new JFileChooser(currDir);
+        myChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        return myChooser;
+    }
+    
     private JFileChooser chooserFileOnly() {
         JFileChooser myChooser = new JFileChooser(currDir);
         myChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        myChooser.setFileFilter(new FileNameExtensionFilter("*Csv", "csv"));
-        myChooser.setFileFilter(new FileNameExtensionFilter("*xlsx", "xlsx"));
-        myChooser.setFileFilter(new FileNameExtensionFilter("*Java", "jar"));
-        myChooser.setFileFilter(new FileNameExtensionFilter("*Text", "txt"));
+        myChooser.setFileFilter(new FileNameExtensionFilter("Csv", "csv"));
+        myChooser.setFileFilter(new FileNameExtensionFilter("xlsx", "xlsx"));
+        myChooser.setFileFilter(new FileNameExtensionFilter("Java", "jar"));
+        myChooser.setFileFilter(new FileNameExtensionFilter("Text", "txt"));
+        myChooser.setFileFilter(null);
         return myChooser;
     }
 
@@ -106,13 +142,17 @@ public class MyChooser {
         }
         return result;
     }
-
-    public File getNewFile() {
-        return newFile;
+    
+    private JFileChooser shooseFolder() {
+        JFileChooser myChooser = new JFileChooser(currDir);
+        myChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        myChooser.setAcceptAllFileFilterUsed(false);
+        return myChooser;
     }
 
-    public void setNewFile(File newFile) {
-        this.newFile = newFile;
+    private JFileChooser showMutiFolder() {
+        JFileChooser myChooser = shooseFolder();
+        myChooser.setMultiSelectionEnabled(true);
+        return myChooser;
     }
-
 }

@@ -4,7 +4,7 @@
  */
 package com.tec02.gui.frameGui.treeFile;
 
-import com.tec02.event.IAction;
+import com.tec02.gui.IAction;
 import com.tec02.gui.frameGui.Component.PopupMenu;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -34,7 +32,7 @@ public class TreeFolder {
     private final FileNode root;
     private Thread reloadThread;
     private IAction<MouseEvent> doubleClickAction;
-
+    
     public TreeFolder(JTree tree, boolean rootVisible) {
         this.tree = tree;
         this.menu = new PopupMenu();
@@ -63,7 +61,7 @@ public class TreeFolder {
         this.root = new FileNode("", null, true);
         this.treeModel.setRoot(this.root);
         this.menu.addItemMenu("Refresh", (e) -> {
-           refresh();
+            refresh();
         });
     }
 
@@ -161,6 +159,14 @@ public class TreeFolder {
         }
     }
 
+    public FileNode getLeafNodeSelected() {
+        FileNode fileNode = getNodeSelected();
+        if(fileNode == null || fileNode.isFolder){
+            return null;
+        }
+        return fileNode;
+    }
+    
     public FileNode getNodeSelected() {
         var path = this.tree.getSelectionPath();
         if (path == null) {
@@ -169,16 +175,67 @@ public class TreeFolder {
         return (FileNode) path.getLastPathComponent();
     }
 
-    public Object getNodeSelectedValue(String key) {
-        FileNode fileNode = this.getNodeSelected();
+    public List<FileNode> getSelecteds(boolean justLeaf) {
+        var paths = this.tree.getSelectionPaths();
+        if (paths == null) {
+            return null;
+        }
+        FileNode fileNode;
+        List<FileNode> fileNodes = new ArrayList<>();
+        for (var path : paths) {
+            fileNode = (FileNode) path.getLastPathComponent();
+            if (justLeaf && fileNode.isFolder) {
+                continue;
+            }
+            fileNodes.add(fileNode);
+        }
+        return fileNodes;
+    }
+
+    public List<FileNode> getLeafSelecteds() {
+        return getSelecteds(true);
+    }
+    
+    public List<FileNode> getNodeSelecteds() {
+        return getSelecteds(false);
+    }
+
+    public<T> T getLeafNodeSelectedValue(String key) {
+        return getSelectedValue(this.getLeafNodeSelected(), key);
+    }
+    
+    public<T> T getNodeSelectedValue(String key) {
+        return getSelectedValue(this.getNodeSelected(), key);
+    }
+    
+    public<T> List<T> getNodeSelectedValues(String key){
+        return getSelectedValues(getSelecteds(false), key);
+    }
+    
+    public<T> List<T> getLeafSelectedValues(String key){
+        return getSelectedValues(getSelecteds(true), key);
+    }
+    
+    public<T> List<T> getSelectedValues(List<FileNode> fileNodes, String key){
+        List<T> rs = new ArrayList<>();
+        if(fileNodes == null){
+            return rs;
+        }
+        for (FileNode fileNode : fileNodes) {
+            rs.add(getSelectedValue(fileNode, key));
+        }
+        return rs;
+    }
+    
+    public<T> T getSelectedValue(FileNode fileNode, String key) {
         if (fileNode == null) {
             return null;
         }
-        return fileNode.getData(key);
+        return (T) fileNode.getData(key);
     }
 
     public void refresh() {
-         this.reloadNode(root);
+        this.reloadNode(root);
     }
 
     public class FileNode extends DefaultMutableTreeNode {
@@ -189,9 +246,9 @@ public class TreeFolder {
         public FileNode(String name, Map<String, Object> data, boolean isFolder) {
             super(name.trim(), isFolder);
             this.isFolder = isFolder;
-            if(data != null){
+            if (data != null) {
                 this.data = data;
-            }else{
+            } else {
                 this.data = Map.of();
             }
         }

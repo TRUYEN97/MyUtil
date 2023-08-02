@@ -48,4 +48,8 @@ public class PopupMenu {
     public void show(MouseEvent e){
         show(e.getComponent(), e.getX(), e.getY());
     }
+
+    public boolean isEmpty() {
+        return this.popupMenu.getComponentCount() == 0;
+    }
 }

@@ -5,11 +5,10 @@
 package com.tec02.common;
 
 import com.alibaba.fastjson.JSONObject;
-import com.tec02.gui.frameGui.Component.MyChooser;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import javax.swing.JComponent;
@@ -30,9 +29,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.message.BasicHeaderValueParser;
-import org.apache.http.message.ParserCursor;
-import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -43,19 +39,23 @@ public class RestAPI {
 
     public static final String AUTHORIZATION_KEY = "authorization";
     private JwtUtil jwtUtil;
-    private JComponent component;
+    private Component component;
 
     public RestAPI() {
         this.jwtUtil = new JwtUtil();
     }
 
-    public RestAPI(JComponent component) {
+    public RestAPI(Component component) {
         this();
         this.component = component;
     }
 
-    public void setComponent(JComponent component) {
+    public void setComponent(Component component) {
         this.component = component;
+    }
+    
+    public Response uploadFile(String url, RequestParam param, JsonBodyAPI bodyAPI, FileInfo... FileInfos) {
+        return uploadFile(createUrl(param, url), bodyAPI, FileInfos);
     }
 
     public Response uploadFile(String url, JsonBodyAPI bodyAPI, FileInfo... FileInfos) {
@@ -150,6 +150,13 @@ public class RestAPI {
 
     public void setJwtToken(String stringJWT) {
         this.jwtUtil.setJWT(stringJWT);
+        checkJwt();
+    }
+
+    private void checkJwt() {
+        if (!this.jwtUtil.isTokenValid()) {
+            this.jwtUtil.logout();
+        }
     }
 
     private Response executeHaveStringBody(HttpEntityEnclosingRequestBase request, String entity) {
@@ -173,6 +180,7 @@ public class RestAPI {
             }
             HttpGet httpGet = new HttpGet(apiUrl);
             try ( CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                checkJwt();
                 httpGet.addHeader("Accept", "*/*");
                 httpGet.addHeader(AUTHORIZATION_KEY, jwtUtil.getJWT());
                 try ( CloseableHttpResponse response = httpClient.execute(httpGet)) {
@@ -191,8 +199,7 @@ public class RestAPI {
                     File file = createPath.createFile(attachment);
                     if (file != null) {
                         file.getParentFile().mkdirs();
-                        try ( InputStream inputStream = response.getEntity().getContent();
-                                FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                        try ( InputStream inputStream = response.getEntity().getContent();  FileOutputStream fileOutputStream = new FileOutputStream(file)) {
                             byte[] buffer = new byte[4096];
                             int bytesRead;
                             while ((bytesRead = inputStream.read(buffer)) != -1) {
@@ -221,20 +228,13 @@ public class RestAPI {
             }
         }
     }
-
-//    public static void main(String[] args) throws IOException {
-//        RestAPI aPI = new RestAPI();
-//        //aPI.setJwtToken("Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJzdWIiOiJBZG1pbmlzdGF0b3IiLCJpYXQiOjE2ODg5NzA2ODIsImV4cCI6MTY4ODk3NDI4Mn0.VTwkhS54YqfsQGJr9qIrrgvFPXAxgx3x_v3F-8hP2mI");
-//        Response response = aPI.downloadFileFromAPI("http://localhost:8081/api/v1/file/download?id=4&version=1.0.0", "test/test.txt");
-//        System.out.println(response.getCode());
-//        System.out.println((String) (response.getData()));
-//        System.out.println(response.getMessage());
-//    }
+    
     private synchronized Response execute(HttpUriRequest request) {
         if (component != null) {
             this.component.setCursor(new Cursor(Cursor.WAIT_CURSOR));
         }
         try ( CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            checkJwt();
             request.addHeader("Accept", "*/*");
             request.addHeader(AUTHORIZATION_KEY, jwtUtil.getJWT());
             try ( CloseableHttpResponse response = httpClient.execute(request)) {
@@ -260,13 +260,38 @@ public class RestAPI {
         return url;
     }
 
+    public String extractUsername() {
+        if (this.jwtUtil == null) {
+            return null;
+        }
+        return this.jwtUtil.extractUsername();
+    }
+
+    public String extractUserRole() {
+        if (this.jwtUtil == null) {
+            return null;
+        }
+        return this.jwtUtil.extractUserRole();
+    }
+
+    public boolean isTokenValid() {
+        if (this.jwtUtil == null) {
+            return false;
+        }
+        return this.jwtUtil.isTokenValid();
+    }
+
+    public void logout() {
+        this.jwtUtil.logout();
+    }
+
     public interface CreatePath {
 
         File createFile(JSONObject jsono);
 
         default File autoCreateFileByAttachment(JSONObject attachment) {
-            String name = attachment.getString("name");
-            String dir = attachment.getString("path");
+            String name = attachment.getString("filename");
+            String dir = attachment.getString("filepath");
             return new File(dir, name);
         }
     }

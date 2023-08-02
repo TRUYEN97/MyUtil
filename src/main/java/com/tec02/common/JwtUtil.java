@@ -26,7 +26,7 @@ public class JwtUtil {
     }
 
     public String getJWT() {
-        return JWT;
+        return String.valueOf(JWT);
     }
 
     public String extractUsername() {

@@ -4,7 +4,8 @@
  */
 package com.tec02.gui.frameGui.Component;
 
-import com.tec02.event.IAction;
+import com.tec02.gui.IAction;
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -28,15 +29,18 @@ public class MyTable {
     private final JTable table;
     private DefaultTableModel model;
     private PopupMenu menu;
+    private PopupMenu selectedMenu;
     private IAction<MouseEvent> doubleClickAction;
 
     public MyTable(JTable table) {
         if (table == null) {
             throw new NullPointerException("Table cannot be null");
         }
+        this.menu = new PopupMenu();
+        this.selectedMenu = new PopupMenu();
         this.table = table;
         this.table.addMouseMotionListener(new MouseAdapter() {
-           
+
             @Override
             public void mouseMoved(MouseEvent e) {
                 Point point = e.getPoint();
@@ -51,16 +55,52 @@ public class MyTable {
         this.table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (menu != null && e.getButton() == MouseEvent.BUTTON3) {
-                    menu.show(table, e.getX(), e.getY());
-                } else if (e.getClickCount() > 1 && e.getButton() == MouseEvent.BUTTON1) {
-                    if(doubleClickAction != null){
-                        doubleClickAction.action(e);
-                    }
-                }
+                mouseClickdAction(e);
             }
         });
-        menu = new PopupMenu();
+        Component parerent = this.table.getParent();
+        if (parerent != null) {
+            parerent.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (getSelectedRowCount() > 0 && !e.isControlDown()) {
+                        clearSelection();
+                    }
+                    mouseClickdAction(e);
+                }
+            });
+        }
+    }
+    
+    public void setModeSelection(int selectionMode){
+        this.table.setSelectionMode(selectionMode);
+    }
+
+    private void mouseClickdAction(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON2) {
+            if (!e.isControlDown()) {
+                clearSelection();
+            }
+            return;
+        }
+        if (e.getClickCount() > 1 && e.getButton() == MouseEvent.BUTTON1 
+                && getSelectedRowCount() == 1 && doubleClickAction != null) {
+            doubleClickAction.action(e);
+        } else if (e.getButton() == MouseEvent.BUTTON3) {
+            if (table.getSelectedRowCount() > 0 && selectedMenu != null && !selectedMenu.isEmpty()) {
+                selectedMenu.show(e);
+            } else if (menu != null && !menu.isEmpty()) {
+                menu.show(e);
+            }
+        }
+    }
+
+    public PopupMenu getSelectedMenu() {
+        return selectedMenu;
+    }
+
+    public void setSelectedMenu(PopupMenu selectedMenu) {
+        this.selectedMenu = selectedMenu;
     }
 
     public void setMenu(PopupMenu menu) {
@@ -70,7 +110,7 @@ public class MyTable {
     public PopupMenu getMenu() {
         return menu;
     }
-    
+
     public void initTable(Collection<String> cols) {
         initTable(cols, null, null);
     }
@@ -78,7 +118,7 @@ public class MyTable {
     public void setDoubleClickAction(IAction<MouseEvent> doubleClickAction) {
         this.doubleClickAction = doubleClickAction;
     }
-    
+
     public void setMouseAdapter(MouseAdapter mouseAdapter) {
         if (this.table == null) {
             return;
@@ -184,6 +224,9 @@ public class MyTable {
 
     public void addRow(Map<String, Object> values) {
         List<Object> objects = new ArrayList<>();
+        if(columns == null){
+            return;
+        }
         for (String column : columns) {
             if (values.containsKey(column)) {
                 objects.add(values.get(column));
@@ -222,6 +265,9 @@ public class MyTable {
     public Map<String, Object> getDataWithCoumns(List<String> columns, int index) {
         Map<String, Object> data;
         data = new HashMap<>();
+        if(columns == null){
+            return data;
+        }
         for (String column : columns) {
             data.put(column, getRowValue(index, column));
         }
@@ -266,15 +312,15 @@ public class MyTable {
     public <T> T getRowSelectedValue(String columnName) {
         int columnIndex;
         int rowSelected = getSelectedRow();
-        if ((columnIndex = columns.indexOf(columnName)) == -1 || rowSelected < -1) {
+        if (columns == null || (columnIndex = columns.indexOf(columnName)) < 0 || rowSelected < 0) {
             return null;
         }
         return (T) this.model.getValueAt(rowSelected, columnIndex);
     }
-    
+
     public Object getRowValue(int row, String columnName) {
         int columnIndex;
-        if ((columnIndex = columns.indexOf(columnName)) == -1) {
+        if (columns == null || (columnIndex = columns.indexOf(columnName)) < 0) {
             return null;
         }
         return this.model.getValueAt(row, columnIndex);
@@ -288,6 +334,10 @@ public class MyTable {
     public Object[] getRowValues(String columnName) {
         List values = getListValue(columnName);
         return values.toArray();
+    }
+
+    public <T> List<T> getRowSelectedValues(String columnName) {
+        return this.getListValue(getSelectedRows(), columnName);
     }
 
     public List getListValue(int[] rows, String columnName) {
@@ -319,7 +369,10 @@ public class MyTable {
 
     public void setValueAt(int row, String columnName, Object value) {
         int columnIndex;
-        if ((columnIndex = columns.indexOf(columnName)) == -1) {
+        if(columns == null){
+            return;
+        }
+        if ((columnIndex = columns.indexOf(columnName)) < 0) {
             return;
         }
         this.model.setValueAt(value, row, columnIndex);
@@ -341,35 +394,72 @@ public class MyTable {
         return this.table.getSelectedColumn();
     }
 
-    public Map<String, Object> getMapSelectedCell() {
+    public CellValue getMapSelectedCell() {
         int column = getSelectedColumn();
         if (column < 0) {
             return null;
         }
-        Map<String, Object> values = new HashMap();
-        values.put(COLUMN, this.model.getColumnName(column));
-        values.put(VALUE, getSelectedCell());
-        return values;
+        return new CellValue(this.model.getColumnName(column), getSelectedCell());
     }
+    
     public static final String VALUE = "value";
     public static final String COLUMN = "column";
 
-    public void setDatas(List<? extends Map<String, Object>> list) {
-        this.clear();
-        if(list == null || list.isEmpty()){
+    public void setDatas(List<? extends Map> items, String... columns) {
+        setDatas(items, List.of(columns));
+    }
+    
+    public void setDatas(List<? extends Map> items, Collection<String> columns) {
+        clear();
+        if(items == null){
             return;
         }
-        initTable(list.get(0).keySet());
-        for (Map<String, Object> map : list) {
+        if (columns != null && !columns.isEmpty()) {
+            initTable(columns);
+        } else if (!items.isEmpty()) {
+            initTable(items.get(0).keySet());
+        }
+        for (Map<String, Object> map : items) {
             addRow(map);
         }
     }
 
+    public List<? extends Map> getRowSelectedMapValues() {
+        int[] index = getSelectedRows();
+        if (index.length == 0) {
+            return List.of();
+        }
+        return getMapRowsWithIndexsColumns(index, columns);
+    }
+    
     public Map<String, Object> getRowSelectedMapValue() {
         int index = getSelectedRow();
-        if(index == -1){
+        if (index == -1) {
             return Map.of();
         }
         return getDataWithCoumns(columns, index);
+    }
+
+    public void clearSelection() {
+        table.clearSelection();
+    }
+    
+    public class CellValue{
+        private final String coloum;
+        private final Object value;
+
+        public CellValue(String coloum, Object value) {
+            this.coloum = coloum;
+            this.value = value;
+        }
+
+        public String getColoum() {
+            return coloum;
+        }
+
+        public<T> T getValue() {
+            return (T) value;
+        }
+        
     }
 }

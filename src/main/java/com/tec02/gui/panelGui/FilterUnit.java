@@ -6,8 +6,13 @@ package com.tec02.gui.panelGui;
 
 import com.tec02.gui.Panelupdate;
 import java.util.Collection;
-import com.tec02.event.IAction;
-import com.tec02.event.PopupMenuFilterAction;
+import com.tec02.gui.IAction;
+import com.tec02.gui.PopupMenuFilterAction;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.event.PopupMenuListener;
 
 /**
@@ -58,6 +63,22 @@ public class FilterUnit extends Panelupdate {
         return selectedAction;
     }
 
+    public <T> T get(Function<DefaultComboBoxModel, T> function) {
+        DefaultComboBoxModel model = (DefaultComboBoxModel) this.combobox.getModel();
+        if(function == null){
+            return null;
+        }
+        return function.apply(model);
+    }
+    
+    public <T> List<T> getListItems(){
+        List<T> rs = new ArrayList<>();
+         for (int i = 0; i < combobox.getItemCount(); i++) {
+            rs.add((T) this.combobox.getItemAt(i));
+        }
+         return rs;
+    }
+    
     public String getItemSelected() {
         if (!this.checkbox.isSelected()) {
             return null;

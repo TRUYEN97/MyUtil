@@ -4,10 +4,11 @@
  */
 package com.tec02.common;
 
+import com.alibaba.fastjson.JSONObject;
 import com.tec02.gui.frameGui.Component.MyChooser;
 import java.awt.HeadlessException;
 import java.io.File;
-import java.util.List;
+import java.nio.file.Path;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -35,8 +36,12 @@ public class RestUtil {
         Response response = this.aPI.sendPost(url, urlParam, bodyAPI);
         return !response.isFailStatusAndShowMessage();
     }
+    
+    public boolean uploadFile(String url, JsonBodyAPI bodyAPI, String filePath){
+        return uploadFile(url, null, bodyAPI, filePath);
+    }
 
-    public boolean uploadFile(String url, JsonBodyAPI bodyAPI, String filePath) throws HeadlessException {
+    public boolean uploadFile(String url, RequestParam param, JsonBodyAPI bodyAPI, String filePath) throws HeadlessException {
         if (url == null) {
             JOptionPane.showMessageDialog(null, "url == null");
             return false;
@@ -49,7 +54,18 @@ public class RestUtil {
         FileInfo fileInfo = new FileInfo(FileInfo.type.FILE);
         fileInfo.setFile(file);
         fileInfo.setName(file.getName());
-        Response response = this.aPI.uploadFile(url, bodyAPI,fileInfo);
+        Response response = this.aPI.uploadFile(url, param, bodyAPI,fileInfo);
+        return !response.isFailStatusAndShowMessage();
+    }
+    
+    public boolean downloadFileSaveByPathOnServer(String url, RequestParam param, String path) throws HeadlessException {
+        if (url == null) {
+            JOptionPane.showMessageDialog(null, "url == null");
+            return false;
+        }
+        Response response = this.aPI.downloadFile(url, param, (jsono) -> {
+            return Path.of(path).toFile();
+        });
         return !response.isFailStatusAndShowMessage();
     }
     
@@ -59,7 +75,7 @@ public class RestUtil {
             return false;
         }
         Response response = this.aPI.downloadFile(url, param, (jsono) -> {
-            String name = jsono.getString("name");
+            String name = jsono.getString("filename");
             MyChooser chooser = new MyChooser();
             if(chooser.showSaveDialog(null, name) == JFileChooser.APPROVE_OPTION){
                 return chooser.getSelectedFile();
@@ -69,7 +85,7 @@ public class RestUtil {
         return !response.isFailStatusAndShowMessage();
     }
 
-    public <T> List<T> getList(String url, RequestParam param) throws HeadlessException {
+    public <T> T getList(String url, RequestParam param) throws HeadlessException {
         if (url == null) {
             JOptionPane.showMessageDialog(null, "url == null");
             return null;
@@ -78,7 +94,7 @@ public class RestUtil {
         if (response.isFailStatusAndShowMessage()) {
             return null;
         }
-        return response.getDatas();
+        return response.getData();
     }
 
     public boolean delete(String url, RequestParam param) {

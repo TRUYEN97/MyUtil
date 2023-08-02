@@ -5,8 +5,9 @@
 package com.tec02.gui.panelGui;
 
 import com.tec02.common.RestAPI;
-import com.tec02.event.PopupMenuFilterAction;
-import com.tec02.model.FilterModel;
+import com.tec02.gui.PopupMenuFilterAction;
+import com.tec02.gui.model.FilterModel;
+import java.util.List;
 import javax.swing.event.PopupMenuEvent;
 
 /**
@@ -54,15 +55,27 @@ public class LocationFilter extends MyFilter {
         getListFromServerWithFilter(LINE, urlLine);
     }
 
-    public String getProduct() {
+    public String getProductSelection() {
         return this.model.get(LocationFilter.PRODUCT, (t) -> t.getItemSelected());
     }
 
-    public String getStation() {
+    public String getStationSelection() {
         return this.model.get(LocationFilter.STATION, (t) -> t.getItemSelected());
     }
 
-    public String getLine() {
+    public String getLineSelection() {
         return this.model.get(LocationFilter.LINE, (t) -> t.getItemSelected());
+    }
+
+    public List<String> getProductItems() {
+        return this.model.get(LocationFilter.PRODUCT, (t) -> t.getListItems());
+    }
+
+    public List<String> getStationItems() {
+        return this.model.get(LocationFilter.STATION, (t) -> t.getListItems());
+    }
+
+    public List<String> getLineItems() {
+        return this.model.get(LocationFilter.LINE, (t) -> t.getListItems());
     }
 }

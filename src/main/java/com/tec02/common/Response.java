@@ -25,6 +25,10 @@ public class Response {
     public Response(int code, String response) {
         this.code = code;
         this.response = response;
+        if(response == null || response.isBlank()){
+            this.wareHouse = new DataWareHouse();
+            return;
+        }
         try {
             this.wareHouse = new DataWareHouse(JSONObject.parseObject(response));
         } catch (Exception e) {
@@ -35,7 +39,7 @@ public class Response {
         if (code == 403) {
             return String.format("Access permissions insufficient to access");
         }
-        if (code == 404 || code == -1) {
+        if (code == 404 || code == -1 || this.wareHouse == null) {
             return  this.response;
         }
         if (!isResponeseAvalid()) {
@@ -95,7 +99,8 @@ public class Response {
     
     public boolean isFailStatusAndShowMessage() throws HeadlessException {
         if (!getStatus()) {
-            JOptionPane.showMessageDialog(null, getMessage());
+            String mess = getMessage();
+            JOptionPane.showMessageDialog(null, String.valueOf(mess));
             return true;
         }
         return false;
