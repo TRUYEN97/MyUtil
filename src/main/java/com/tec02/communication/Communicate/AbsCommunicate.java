@@ -102,6 +102,9 @@ public abstract class AbsCommunicate extends AbsShowException implements ISender
         if (input != null) {
             input.close();
         }
+        if(out != null){
+            out.close();
+        }
         closeThis();
     }
 }

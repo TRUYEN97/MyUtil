@@ -46,7 +46,7 @@ public class Cmd extends AbsCommunicate implements ISender, IReadStream {
         }
     }
 
-    private void destroy() {
+    public void destroy() {
         try {
             close();
         } catch (IOException e) {
@@ -54,10 +54,11 @@ public class Cmd extends AbsCommunicate implements ISender, IReadStream {
         }
     }
 
+
     @Override
     protected void closeThis() throws IOException {
         if (process != null) {
-            process.destroy();
+            process.destroyForcibly();
         }
     }
 

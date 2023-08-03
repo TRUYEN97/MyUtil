@@ -1,3 +1,4 @@
+D:\Server\MyUtil\src\main\java\com\tec02\common\PropertiesModel.java
 D:\Server\MyUtil\src\main\java\com\tec02\myloger\MyLoger.java
 D:\Server\MyUtil\src\main\java\com\tec02\gui\panelGui\UserInfomation.java
 D:\Server\MyUtil\src\main\java\com\tec02\common\JsonBodyAPI.java
@@ -6,7 +7,6 @@ D:\Server\MyUtil\src\main\java\com\tec02\communication\Communicate\ReadStreamOve
 D:\Server\MyUtil\src\main\java\com\tec02\gui\panelGui\AppStore.java
 D:\Server\MyUtil\src\main\java\com\tec02\gui\panelGui\FileUploadPn.java
 D:\Server\MyUtil\src\main\java\com\tec02\gui\frameGui\Component\MyListTabel.java
-D:\Server\MyUtil\src\main\java\com\tec02\gui\model\PropertiesModel.java
 D:\Server\MyUtil\src\main\java\com\tec02\appStore\analysis\AppManagement.java
 D:\Server\MyUtil\src\main\java\com\tec02\Robot\W32API.java
 D:\Server\MyUtil\src\main\java\com\tec02\common\MyObjectMapper.java

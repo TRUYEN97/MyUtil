@@ -41,6 +41,9 @@ public class AppUnit extends Panelupdate {
         this.popupMenu.addItemMenu("Run", (e) -> {
             runApp();
         });
+        this.popupMenu.addItemMenu("Stop", (e) -> {
+            stop();
+        });
         this.popupMenu.addItemMenu("Open file location", (e) -> {
             if (appProccess == null) {
                 return;
@@ -63,36 +66,22 @@ public class AppUnit extends Panelupdate {
             }
         });
         this.popupMenu.addItemMenu("Show Description", (e) -> {
-            
+
         });
-        
+
     }
 
     private void runApp() {
-        if (thread != null && thread.isAlive()) {
-            return;
-        }
-        this.thread = new Thread() {
-            @Override
-            public void run() {
-                if (appProccess == null) {
-                    return;
-                }
-                String password = appProccess.getPassword();
-                if (password != null && !password.isBlank()) {
-                    JPasswordField passwordField = new JPasswordField();
-                    JOptionUtil.showObject(passwordField, "Password");
-                    String pass = new String(passwordField.getPassword());
-                    if (!pass.equals(password)) {
-                        return;
-                    }
-                }
-                setCursor(new Cursor(Cursor.WAIT_CURSOR));
-                appProccess.runApp();
-                setCursor(Cursor.getDefaultCursor());
+        if (this.appProccess.isRuning()) {
+            JOptionUtil.showMessage("%s is runing", this.appProccess.getAppName());
+        } else {
+            if (appProccess == null) {
+                return;
             }
-        };
-        this.thread.start();
+            setCursor(new Cursor(Cursor.WAIT_CURSOR));
+            appProccess.runApp();
+            setCursor(Cursor.getDefaultCursor());
+        }
     }
 
 //
@@ -172,21 +161,18 @@ public class AppUnit extends Panelupdate {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(18, Short.MAX_VALUE)
                 .addComponent(pnAppVid, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lbName, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(20, Short.MAX_VALUE))
+            .addComponent(lbName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(20, Short.MAX_VALUE)
                 .addComponent(pnAppVid, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbName, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lbName, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -206,11 +192,7 @@ public class AppUnit extends Panelupdate {
             return;
         }
         if (evt.getClickCount() > 1 && evt.getButton() == MouseEvent.BUTTON1) {
-            if (this.appProccess.isRuning()) {
-                JOptionUtil.showMessage("%s is runing", this.appProccess.getAppName());
-            } else {
-                runApp();
-            }
+            runApp();
         } else if (evt.getButton() == MouseEvent.BUTTON3) {
             this.popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
@@ -267,5 +249,9 @@ public class AppUnit extends Panelupdate {
 
     public boolean isFree() {
         return appProccess == null;
+    }
+
+    private void stop() {
+        this.appProccess.stopRun();
     }
 }

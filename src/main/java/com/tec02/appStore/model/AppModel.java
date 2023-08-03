@@ -13,13 +13,12 @@ import java.util.Map;
  * @author Administrator
  */
 public class AppModel {
+
     private Object id;
     private String name;
     private String password;
-    private String cammand;
     private boolean awaysUpdate;
     private String description;
-    private Path pathRun;
     private FileModel fileProgram;
     private final Map<Object, FileModel> files = new HashMap<>();
 
@@ -27,22 +26,14 @@ public class AppModel {
         return fileProgram;
     }
 
-    public String getCammand() {
-        return cammand;
-    }
-    
-    public Path getPathRun() {
-        return pathRun;
-    }
-
-    public void setPathRun(Path pathRun) {
-        this.pathRun = pathRun;
-    }
-    
     public boolean isAwaysUpdate() {
         return awaysUpdate;
     }
-    
+
+    public Path getLocalPath(String dir) {
+        return Path.of(dir, name);
+    }
+
     public void setFiles(Map<Object, FileModel> files) {
         this.files.clear();
         this.files.putAll(files);
@@ -71,5 +62,5 @@ public class AppModel {
     public boolean isEmpty() {
         return files.isEmpty();
     }
-    
+
 }

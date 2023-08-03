@@ -10,7 +10,7 @@ import com.tec02.appStore.model.FileModel;
 import com.tec02.common.Keyword;
 import com.tec02.common.RestAPI;
 import com.tec02.common.Util;
-import com.tec02.gui.model.PropertiesModel;
+import com.tec02.common.PropertiesModel;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.StandardCopyOption;

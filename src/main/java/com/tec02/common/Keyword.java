@@ -70,17 +70,15 @@ public final class Keyword {
 
             public static final String GET_APP_DOWNLOAD = "api.url.pc.get.app.download";
             public static final String GET_APP_INFO = "api.url.pc.get.app.info";
-            public static final String GET_PROGRAM_ID = "api.url.pc.get.program.id";
             public static final String GET = "api.url.pc.get";
             public static final String POST = "api.url.pc.post";
             public static final String DELETE = "api.url.pc.delete";
             public static final String PUT = "api.url.pc.put";
+            public static final String PUT_INFO = "api.url.pc.put.info";
         }
 
         public static final class Fgroup {
 
-            public static final String GET_PROGRAM_LOCATION = "api.url.fgroup.get.program.location";
-            public static final String GET_PROGRAM_ID = "api.url.fgroup.get.program.id";
             public static final String GET = "api.url.fgroup.get";
             public static final String GET_LIST = "api.url.fgroup.getlist";
             public static final String POST = "api.url.fgroup.post";
@@ -90,8 +88,6 @@ public final class Keyword {
 
         public static final class FileProgram {
 
-            public static final String GET_PROGRAM_LOCATION = "api.url.fprogram.get.program.location";
-            public static final String GET_PROGRAM_ID = "api.url.fprogram.get.program.id";
             public static final String GET_LIST = "api.url.fprogram.getlist";
             public static final String GET = "api.url.fprogram.get";
             public static final String POST = "api.url.fprogram.post";
@@ -103,6 +99,11 @@ public final class Keyword {
 
         public static final class Program {
 
+            public static final String GET_PCS = "api.url.program.get.pc";
+            public static final String GET_FGROUP = "api.url.program.get.fgroup";
+            public static final String GET_FGROUPS = "api.url.program.get.fgroups";
+            public static final String GET_PROGRAMS = "api.url.program.get.fileprograms";
+            public static final String GET_FILE_PROGRAM_VSERSION = "api.url.program.get.fileprogram.version";
             public static final String GET = "api.url.program.get";
             public static final String GET_LIST = "api.url.program.getlist";
             public static final String POST = "api.url.program.post";

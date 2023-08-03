@@ -6,7 +6,7 @@ package com.tec02.appStore;
 
 import Time.TimeBase;
 import com.tec02.common.Keyword;
-import com.tec02.gui.model.PropertiesModel;
+import com.tec02.common.PropertiesModel;
 import com.tec02.myloger.MyLoger;
 
 /**

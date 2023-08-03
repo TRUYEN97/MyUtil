@@ -6,14 +6,16 @@ package com.tec02.common;
 
 import com.tec02.communication.Communicate.Impl.Cmd.Cmd;
 import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -23,14 +25,11 @@ import java.util.Properties;
 public class ProgramInformation {
 
     private static volatile ProgramInformation instance;
-    private final List<Inet4Address> ipV4s;
-    private final List<Inet6Address> ipV6s;
-    private String pc_name;
+    private Map<String, List<String>> networkInfomation;
+    private final String pc_name;
 
     private ProgramInformation() {
-        this.ipV4s = new ArrayList<>();
-        this.ipV6s = new ArrayList<>();
-        scanHostIp();
+        this.networkInfomation = scanHostIp();
         this.pc_name = getComputerName();
     }
 
@@ -46,32 +45,59 @@ public class ProgramInformation {
         }
         return ins;
     }
+    
+    public boolean isChanged(){
+        var nwi = scanHostIp();
+        if(nwi.equals(this.networkInfomation)){
+            return false;
+        }
+        this.networkInfomation = nwi;
+        return true;
+    }
 
     public String getPcName() {
         return pc_name;
     }
 
-    public String getIpV4() {
-        for (Inet4Address ipV4 : ipV4s) {
-            String ip = ipV4.getHostAddress();
-            if (ip != null && ip.startsWith("10.")) {
-                return ip;
-            }
+    public List<String> getIps() {
+        List<String> rs = new ArrayList<>();
+        for (List<String> ips : networkInfomation.values()) {
+            rs.addAll(ips);
         }
-        return "";
+        return rs;
     }
 
-    private void scanHostIp() {
+    public Collection<String> getMacs() {
+        return networkInfomation.keySet();
+    }
+
+    public Map<String, List<String>> getNetworkInfomation() {
+        return networkInfomation;
+    }
+
+    private Map<String, List<String>> scanHostIp() {
+        Map<String, List<String>> networkInfo = new HashMap<>();
         try {
             for (Enumeration<NetworkInterface> eni = NetworkInterface.getNetworkInterfaces(); eni.hasMoreElements();) {
                 final NetworkInterface ifc = eni.nextElement();
                 if (ifc.isUp()) {
-                    for (Enumeration<InetAddress> ena = ifc.getInetAddresses(); ena.hasMoreElements();) {
-                        InetAddress address = ena.nextElement();
-                        if (address instanceof Inet4Address ipv4) {
-                            this.ipV4s.add(ipv4);
-                        } else if (address instanceof Inet6Address ipv6) {
-                            this.ipV6s.add(ipv6);
+                    byte[] macBytes = ifc.getHardwareAddress();
+                    if (macBytes != null) {
+                        StringBuilder macAddress = new StringBuilder();
+                        for (byte b : macBytes) {
+                            macAddress.append(String.format("%02X", b));
+                            macAddress.append(":");
+                        }
+                        if (macAddress.length() > 0) {
+                            macAddress.setLength(macAddress.length() - 1);
+                        }
+                        List<String> ips = new ArrayList<>();
+                        networkInfo.put(macAddress.toString(), ips);
+                        for (Enumeration<InetAddress> ena = ifc.getInetAddresses(); ena.hasMoreElements();) {
+                            InetAddress address = ena.nextElement();
+                            if (address instanceof Inet4Address ipv4) {
+                                ips.add(ipv4.getHostAddress());
+                            }
                         }
                     }
                 }
@@ -79,6 +105,7 @@ public class ProgramInformation {
         } catch (SocketException ex) {
             ex.printStackTrace();
         }
+        return networkInfo;
     }
 
     private String getComputerName() {
@@ -109,7 +136,7 @@ public class ProgramInformation {
         return cmd1.readAll();
     }
 
-    private String getSystemName() {
+    public String getSystemName() {
         Properties sysProperty = System.getProperties();
         return sysProperty.getProperty("os.name");
     }

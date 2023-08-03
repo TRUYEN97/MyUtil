@@ -16,12 +16,21 @@ public class FileModel {
     protected Long id;
     protected String filename;
     protected String filepath;
+    protected String appName;
     protected String md5;
 
     public Path getLocalPath(String dir) {
-        return Path.of(dir, filepath, filename);
+        return Path.of(dir, appName, filepath, filename);
     }
 
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+    
     public Long getId() {
         return id;
     }

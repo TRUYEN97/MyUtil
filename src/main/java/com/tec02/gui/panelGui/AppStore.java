@@ -8,12 +8,15 @@ import com.tec02.appStore.analysis.AppPackage;
 import com.tec02.appStore.StoreLoger;
 import com.tec02.appStore.StorePanel;
 import com.tec02.appStore.analysis.AppManagement;
+import com.tec02.common.JsonBodyAPI;
 import com.tec02.common.Keyword;
+import com.tec02.common.MyObjectMapper;
 import com.tec02.common.ProgramInformation;
 import com.tec02.common.RequestParam;
 import com.tec02.common.RestAPI;
 import com.tec02.gui.Panelupdate;
-import com.tec02.gui.model.PropertiesModel;
+import com.tec02.common.PropertiesModel;
+import com.tec02.common.RestUtil;
 import java.io.IOException;
 import javax.swing.Timer;
 
@@ -28,6 +31,9 @@ public class AppStore extends Panelupdate {
     private final AppPackage appPackage;
     private final StoreLoger loger;
     private final AppManagement appManagement;
+    private final RestUtil restUtil;
+    private final ProgramInformation pcInfo;
+    private boolean pcUpdate;
 
     /**
      * Creates new form AppStore
@@ -35,11 +41,14 @@ public class AppStore extends Panelupdate {
      * @param api
      * @throws java.io.IOException
      */
-    public AppStore(RestAPI api) throws IOException {
+    public AppStore(RestAPI api) throws Exception {
         initComponents();
+        this.pcInfo = ProgramInformation.getInstance();
+        this.restUtil = new RestUtil(api);
+        api.setTextComponent(txtShowMessage);
         this.loger = new StoreLoger();
         this.appManagement = new AppManagement(api, this.loger);
-        this.storePanel = new StorePanel(this.appManagement, 3, 4);
+        this.storePanel = new StorePanel(this.appManagement, 3, 3);
         this.userInfo = new UserInfomation(api);
         this.pnUser.add(userInfo);
         this.userInfo.update();
@@ -52,7 +61,20 @@ public class AppStore extends Panelupdate {
         }).start();
     }
 
+    private void updatePcInfo() {
+        if (pcInfo.isChanged() || !pcUpdate) {
+            pcUpdate = this.restUtil.update(PropertiesModel.getConfig(Keyword.Url.Pc.PUT_INFO),
+                    RequestParam.builder().addPath(pcInfo.getPcName()),
+                    JsonBodyAPI.builder()
+                            .put("os", pcInfo.getSystemName())
+                            .put("mac", pcInfo.getMacs().toString())
+                            .put("ip", pcInfo.getIps().toString())
+            );
+        }
+    }
+
     private void checkAppUpdate() {
+        updatePcInfo();
         this.appPackage.checkAppUpdate(RequestParam.builder().addParam(Keyword.PC_NAME,
                 ProgramInformation.getInstance().getPcName()));
         this.appManagement.checkUpdate(this.appPackage.getApps().values());
@@ -81,8 +103,11 @@ public class AppStore extends Panelupdate {
 
         txtShowMessage.setEditable(false);
         txtShowMessage.setColumns(15);
+        txtShowMessage.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtShowMessage.setLineWrap(true);
         txtShowMessage.setRows(5);
         txtShowMessage.setTabSize(1);
+        txtShowMessage.setWrapStyleWord(true);
         jScrollPane1.setViewportView(txtShowMessage);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

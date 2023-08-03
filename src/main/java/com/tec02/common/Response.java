@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import java.awt.HeadlessException;
 import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.text.JTextComponent;
 
 /**
  *
@@ -21,11 +22,12 @@ public class Response {
     public static final String MESSAGE = "message";
     public static final String DATA = "data";
     public static final String RESULT = "result";
+    private JTextComponent textComponent;
 
     public Response(int code, String response) {
         this.code = code;
         this.response = response;
-        if(response == null || response.isBlank()){
+        if (response == null || response.isBlank()) {
             this.wareHouse = new DataWareHouse();
             return;
         }
@@ -35,12 +37,23 @@ public class Response {
         }
     }
 
+    public void setTextComponent(JTextComponent textComponent) {
+        this.textComponent = textComponent;
+        if (this.textComponent != null) {
+            this.textComponent.setText(null);
+        }
+    }
+
+    public JTextComponent getTextComponent() {
+        return textComponent;
+    }
+
     public String getMessage() {
         if (code == 403) {
             return String.format("Access permissions insufficient to access");
         }
         if (code == 404 || code == -1 || this.wareHouse == null) {
-            return  this.response;
+            return this.response;
         }
         if (!isResponeseAvalid()) {
             return null;
@@ -62,7 +75,7 @@ public class Response {
         }
         return (T) value;
     }
-    
+
     public <T> List<T> getDatas() {
         if (!isResponeseAvalid()) {
             return null;
@@ -96,11 +109,15 @@ public class Response {
             return false;
         }
     }
-    
+
     public boolean isFailStatusAndShowMessage() throws HeadlessException {
         if (!getStatus()) {
             String mess = getMessage();
-            JOptionPane.showMessageDialog(null, String.valueOf(mess));
+            if (this.textComponent != null) {
+                this.textComponent.setText(mess);
+            } else {
+                JOptionPane.showMessageDialog(null, String.valueOf(mess));
+            }
             return true;
         }
         return false;

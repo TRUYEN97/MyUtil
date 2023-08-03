@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.URL;
 
 /**
  *
@@ -45,7 +46,7 @@ public class MySystemTray {
         this.menu.addSeparator();
     } 
 
-    public boolean initTrayIcon(String imagePath, String title) {
+    public boolean initTrayIcon(URL imagePath, String title) {
         if (imagePath == null || title == null) {
             return false;
         }
@@ -142,5 +143,6 @@ public class MySystemTray {
             }
         });
     }
+    
 
 }

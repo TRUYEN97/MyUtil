@@ -34,6 +34,7 @@ public class RestUtil {
             return false;
         }
         Response response = this.aPI.sendPost(url, urlParam, bodyAPI);
+        response.setTextComponent(null);
         return !response.isFailStatusAndShowMessage();
     }
     
@@ -55,6 +56,7 @@ public class RestUtil {
         fileInfo.setFile(file);
         fileInfo.setName(file.getName());
         Response response = this.aPI.uploadFile(url, param, bodyAPI,fileInfo);
+        response.setTextComponent(null);
         return !response.isFailStatusAndShowMessage();
     }
     
@@ -82,6 +84,7 @@ public class RestUtil {
             }
             return null;
         });
+        response.setTextComponent(null);
         return !response.isFailStatusAndShowMessage();
     }
 
@@ -91,6 +94,7 @@ public class RestUtil {
             return null;
         }
         Response response = this.aPI.sendGet(url, param);
+        response.setTextComponent(null);
         if (response.isFailStatusAndShowMessage()) {
             return null;
         }
@@ -103,6 +107,7 @@ public class RestUtil {
             return false;
         }
         Response response = this.aPI.sendDelete(url, param);
+        response.setTextComponent(null);
         return !response.isFailStatusAndShowMessage();
     }
     
@@ -112,6 +117,7 @@ public class RestUtil {
             return false;
         }
         Response response = this.aPI.sendPut(url, queryParam, bodyAPI);
+        response.setTextComponent(null);
         return !response.isFailStatusAndShowMessage();
     }
 }

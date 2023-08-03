@@ -12,7 +12,6 @@ com\tec02\communication\DHCP\DHCP.class
 com\tec02\gui\panelGui\TableAndLocation.class
 com\tec02\gui\panelGui\UserInfomation$1.class
 com\tec02\gui\Panelupdate.class
-com\tec02\appStore\AppUnit$3.class
 com\tec02\gui\frameGui\Component\MyTable$CellValue.class
 com\tec02\gui\panelGui\ProgramEditPanel.class
 com\tec02\gui\frameGui\Component\MyChooser.class
@@ -92,6 +91,7 @@ com\tec02\gui\frameGui\LogView.class
 com\tec02\common\Keyword$Url$Station.class
 com\tec02\myloger\MyLoger.class
 com\tec02\communication\Communicate\ReadStream.class
+com\tec02\common\PropertiesModel.class
 com\tec02\common\Keyword$Url$Product.class
 com\tec02\common\Keyword$FilterName.class
 com\tec02\common\Response.class
@@ -123,4 +123,3 @@ com\tec02\gui\PopupMenuFilterAction.class
 com\tec02\gui\panelGui\UserInfomation.class
 com\tec02\gui\frameGui\Component\MyTable.class
 com\tec02\common\DataWareHouse.class
-com\tec02\gui\model\PropertiesModel.class

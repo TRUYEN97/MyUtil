@@ -14,7 +14,7 @@ import com.tec02.common.RestUtil;
 import com.tec02.gui.Panelupdate;
 import com.tec02.gui.frameGui.Component.MyTable;
 import com.tec02.gui.frameGui.Component.PopupMenu;
-import com.tec02.gui.model.PropertiesModel;
+import com.tec02.common.PropertiesModel;
 import java.awt.HeadlessException;
 import java.io.File;
 import java.util.List;

@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import javax.swing.JComponent;
+import javax.swing.text.JTextComponent;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
@@ -40,9 +41,18 @@ public class RestAPI {
     public static final String AUTHORIZATION_KEY = "authorization";
     private JwtUtil jwtUtil;
     private Component component;
+    private JTextComponent textComponent;
 
     public RestAPI() {
         this.jwtUtil = new JwtUtil();
+    }
+
+    public JTextComponent getTextComponent() {
+        return textComponent;
+    }
+
+    public void setTextComponent(JTextComponent textComponent) {
+        this.textComponent = textComponent;
     }
 
     public RestAPI(Component component) {
@@ -53,7 +63,7 @@ public class RestAPI {
     public void setComponent(Component component) {
         this.component = component;
     }
-    
+
     public Response uploadFile(String url, RequestParam param, JsonBodyAPI bodyAPI, FileInfo... FileInfos) {
         return uploadFile(createUrl(param, url), bodyAPI, FileInfos);
     }
@@ -206,29 +216,35 @@ public class RestAPI {
                                 fileOutputStream.write(buffer, 0, bytesRead);
                             }
                         }
-                        return new Response(response.getStatusLine().getStatusCode(),
+                        Response response1 = new Response(response.getStatusLine().getStatusCode(),
                                 JsonBodyAPI.builder()
                                         .put(Response.RESULT, true)
                                         .put(Response.MESSAGE, "")
                                         .put(Response.DATA, attachment.toJSONString())
                                         .toString());
+                        response1.setTextComponent(textComponent);
+                        return response1;
                     }
-                    return new Response(200, JsonBodyAPI.builder()
+                    Response response1 = new Response(200, JsonBodyAPI.builder()
                             .put(Response.RESULT, false)
                             .put(Response.MESSAGE, "Cancel").toJSONString());
+                    response1.setTextComponent(textComponent);
+                    return response1;
                 }
             }
         } catch (Exception e) {
-            return new Response(-1, JsonBodyAPI.builder()
+            Response response1 = new Response(-1, JsonBodyAPI.builder()
                     .put(Response.RESULT, false)
                     .put(Response.MESSAGE, e.getLocalizedMessage()).toJSONString());
+            response1.setTextComponent(textComponent);
+            return response1;
         } finally {
             if (component != null) {
                 this.component.setCursor(Cursor.getDefaultCursor());
             }
         }
     }
-    
+
     private synchronized Response execute(HttpUriRequest request) {
         if (component != null) {
             this.component.setCursor(new Cursor(Cursor.WAIT_CURSOR));
@@ -240,12 +256,16 @@ public class RestAPI {
             try ( CloseableHttpResponse response = httpClient.execute(request)) {
                 String body = EntityUtils.toString(response.getEntity());
                 int statusCode = response.getStatusLine().getStatusCode();
-                return new Response(statusCode, body);
+                Response response1 = new Response(statusCode, body);
+                response1.setTextComponent(textComponent);
+                return response1;
             }
         } catch (Exception e) {
-            return new Response(-1, JsonBodyAPI.builder()
+            Response response1 = new Response(-1, JsonBodyAPI.builder()
                     .put(Response.RESULT, false)
                     .put(Response.MESSAGE, e.getLocalizedMessage()).toJSONString());
+            response1.setTextComponent(textComponent);
+            return response1;
         } finally {
             if (component != null) {
                 this.component.setCursor(Cursor.getDefaultCursor());

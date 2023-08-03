@@ -12,7 +12,7 @@ import com.tec02.common.RequestParam;
 import com.tec02.common.RestAPI;
 import com.tec02.common.RestUtil;
 import com.tec02.common.Util;
-import com.tec02.gui.model.PropertiesModel;
+import com.tec02.common.PropertiesModel;
 import java.awt.HeadlessException;
 import java.io.File;
 import java.io.IOException;

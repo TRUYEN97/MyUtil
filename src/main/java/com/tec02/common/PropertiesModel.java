@@ -2,10 +2,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.tec02.gui.model;
+package com.tec02.common;
 
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -17,16 +15,16 @@ public class PropertiesModel {
     private static volatile PropertiesModel instance;
     private final Properties properties;
 
-    private PropertiesModel() throws IOException {
+    private PropertiesModel() throws Exception {
         properties = new Properties();
         init();
     }
 
-    public final void init() throws IOException {
-        properties.load(new FileReader("src\\main\\resources\\config.properties"));
+    public final void init() throws Exception {
+        properties.load(getClass().getResourceAsStream("/config.properties"));
     }
 
-    public static PropertiesModel getInstance() throws IOException {
+    public static PropertiesModel getInstance() throws Exception {
         PropertiesModel ins = PropertiesModel.instance;
         if (ins == null) {
             synchronized (PropertiesModel.class) {
@@ -51,7 +49,7 @@ public class PropertiesModel {
     public static String getConfig(String key) {
         try {
             return getInstance().getProperty(key);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         }
@@ -60,7 +58,7 @@ public class PropertiesModel {
     public static String getConfig(String key, String defaultValue) {
         try {
             return getInstance().getProperty(key, defaultValue);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         }

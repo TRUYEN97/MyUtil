@@ -4,18 +4,18 @@
  */
 package com.tec02.appStore.analysis;
 
-import Time.WaitTime.Class.TimeMs;
 import com.tec02.appStore.model.AppModel;
+import com.tec02.common.JOptionUtil;
 import com.tec02.common.Keyword;
 import com.tec02.communication.Communicate.Impl.Cmd.Cmd;
-import com.tec02.gui.model.PropertiesModel;
+import com.tec02.common.PropertiesModel;
 import java.io.File;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Icon;
+import javax.swing.JPasswordField;
 import javax.swing.filechooser.FileSystemView;
 
 /**
@@ -24,11 +24,15 @@ import javax.swing.filechooser.FileSystemView;
  */
 public class AppProccess {
 
-    private final Cmd cmd;
+    private Thread thread;
     private AppModel appModel;
     private Path runFile;
+    private Path localPath;
+    private final String dir;
+    private Cmd cmd;
 
     public AppProccess() {
+        this.dir = PropertiesModel.getConfig(Keyword.Store.LOCAL_APP);
         this.cmd = new Cmd();
     }
 
@@ -45,57 +49,46 @@ public class AppProccess {
 
     public void setRunFile(AppModel appModel) {
         this.appModel = appModel;
-        this.runFile = this.appModel.getFileProgram()
-                .getLocalPath(
-                        PropertiesModel
-                                .getConfig(Keyword.Store.LOCAL_APP));
-    }
-
-    public boolean runApp() {
-        if (this.appModel == null) {
-            return false;
-        }
-        if (!isRuning()) {
-            run();
-        }
-        return true;
+        this.localPath = this.appModel.getLocalPath(dir);
+        this.runFile = this.appModel.getFileProgram().getLocalPath(dir);
     }
 
     public boolean isRuning() {
-        if (this.appModel == null) {
-            return false;
-        }
-        try ( FileChannel fileChannel = FileChannel.open(runFile,StandardOpenOption.WRITE); 
-                FileLock fileLock = fileChannel.tryLock()) {
-            if (fileLock != null) {
-                fileLock.release();
-                return false;
-            }
-            return true;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return false;
-        }
+        return appModel != null && thread != null && thread.isAlive();
     }
 
-    private boolean run() {
-        if (this.appModel == null) {
-            return false;
+    public synchronized void runApp() {
+        if (appModel == null || isRuning()) {
+            return;
         }
-        String fileName = runFile.getFileName().toString().toLowerCase();
-        String commandRun;
-        if (fileName.endsWith(".jar")) {
-            commandRun = String.format("cd %s && start %s",
-                    runFile.getParent(), fileName);
-        } else {
-            commandRun = String.format("cd %s && start %s",
-                    runFile.getParent(), fileName);
+        String password = getPassword();
+        if (password != null && !password.isBlank()) {
+            JPasswordField passwordField = new JPasswordField();
+            JOptionUtil.showObject(passwordField, "Password");
+            String pass = new String(passwordField.getPassword());
+            if (!pass.equals(password)) {
+                return;
+            }
         }
-        if (!cmd.sendCommand(commandRun)) {
-            return false;
-        }
-        cmd.readAll(new TimeMs(500));
-        return true;
+        this.thread = new Thread(() -> {
+            String fileName = runFile.getFileName().toString().toLowerCase();
+            String commandRun;
+            if (fileName.endsWith(".jar")) {
+                commandRun = String.format("cd %s && java -jar %s",
+                        runFile.getParent(), fileName);
+            } else {
+                commandRun = String.format("cd %s && %s",
+                        runFile.getParent(), fileName);
+            }
+            if (!cmd.insertCommand(commandRun)) {
+                return;
+            }
+            String line;
+            while ((line = cmd.readLine()) != null) {
+                System.out.println(line);
+            }
+        });
+        thread.start();
     }
 
     public String getDescription() {
@@ -133,6 +126,12 @@ public class AppProccess {
             return null;
         }
         return runFile.toFile();
+    }
+
+    public void stopRun() {
+        if (isRuning()) {
+            cmd.destroy();
+        }
     }
 
 }

@@ -9,7 +9,7 @@ import com.tec02.common.JsonBodyAPI;
 import com.tec02.common.Keyword;
 import com.tec02.common.RestAPI;
 import com.tec02.gui.Panelupdate;
-import com.tec02.gui.model.PropertiesModel;
+import com.tec02.common.PropertiesModel;
 import java.io.IOException;
 import javax.swing.Timer;
 
@@ -29,7 +29,7 @@ public class UserInfomation extends Panelupdate {
      * @param restAPI
      * @throws java.io.IOException
      */
-    public UserInfomation(RestAPI restAPI) throws IOException {
+    public UserInfomation(RestAPI restAPI) throws Exception {
         initComponents();
         this.restAPI = restAPI;
         this.model = PropertiesModel.getInstance();
