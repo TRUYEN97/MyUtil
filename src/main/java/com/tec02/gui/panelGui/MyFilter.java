@@ -4,8 +4,8 @@
  */
 package com.tec02.gui.panelGui;
 
-import com.tec02.common.Response;
-import com.tec02.common.RestAPI;
+import com.tec02.common.API.Response;
+import com.tec02.common.API.RestAPI;
 import com.tec02.gui.model.MyFilterBuilder;
 import com.tec02.gui.Panelupdate;
 import com.tec02.gui.model.FilterModel;

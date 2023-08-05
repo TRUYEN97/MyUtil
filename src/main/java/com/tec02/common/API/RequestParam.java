@@ -1,4 +1,4 @@
-package com.tec02.common;
+package com.tec02.common.API;
 
 import java.util.ArrayList;
 import java.util.Collection;

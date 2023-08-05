@@ -35,15 +35,24 @@ public class StorePanel extends Panelupdate {
         initComponents();
         this.setLayout(new GridLayout(rows, columns, 0, 0));
         AppUnit appUnit;
-        Color backgroundColor = this.getBackground();
         for (int i = 0; i < rows * columns; i++) {
-            appUnit = new AppUnit(backgroundColor);
+            appUnit = new AppUnit();
             this.add(appUnit);
             this.appUnits.add(appUnit);
         }
         this.validate();
     }
 
+    @Override
+    public void update() {
+        super.update();
+        for (AppUnit appUnit : appUnits) {
+            appUnit.update();
+        }
+    }
+
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -53,6 +62,7 @@ public class StorePanel extends Panelupdate {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        setBackground(new java.awt.Color(102, 204, 255));
         setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
     }// </editor-fold>//GEN-END:initComponents

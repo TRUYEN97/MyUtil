@@ -4,6 +4,7 @@
  */
 package com.tec02.common;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +24,22 @@ public class Util {
             target.getParent().toFile().mkdirs();
         }
         Files.copy(source, target, options);
+    }
+
+    public static void deleteFolder(File root) {
+        if(!root.exists()){
+           return;
+        }
+        File[] files = root.listFiles();
+        if (files != null && files.length > 0) {
+            for (File file : root.listFiles()) {
+                if (file.isDirectory()) {
+                    deleteFolder(file);
+                }
+                file.delete();
+            }
+        }
+        root.delete();
     }
 
     public static String md5File(byte[] bytes) {

@@ -5,10 +5,10 @@
 package com.tec02.gui.frameGui;
 
 import com.alibaba.fastjson.JSONObject;
-import com.tec02.common.JsonBodyAPI;
-import com.tec02.common.RequestParam;
-import com.tec02.common.Response;
-import com.tec02.common.RestAPI;
+import com.tec02.common.API.JsonBodyAPI;
+import com.tec02.common.API.RequestParam;
+import com.tec02.common.API.Response;
+import com.tec02.common.API.RestAPI;
 import com.tec02.gui.frameGui.Component.MyTable;
 import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
@@ -162,7 +162,7 @@ public class ConfigGui extends AbsDisplayAble {
             return;
         }
         Response response = this.api.sendPost(addUrl, JsonBodyAPI.builder().put(key, input));
-        if (response.isFailStatusAndShowMessage()) {
+        if (response.isFailStatusAndShowMessage(true)) {
             return;
         }
         this.txtInput.setText(null);
@@ -193,7 +193,7 @@ public class ConfigGui extends AbsDisplayAble {
         }
         Object[] ids = this.tableModel.getRowValues(index, "id");
         Response response = this.api.sendDelete(this.deleteUrl, RequestParam.builder().addParam("id", ids));
-        if(response.isFailStatusAndShowMessage()){
+        if(response.isFailStatusAndShowMessage(true)){
             return;
         }
         JOptionPane.showMessageDialog(null, response.getMessage());

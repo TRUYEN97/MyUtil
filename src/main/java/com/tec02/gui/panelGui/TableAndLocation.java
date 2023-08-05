@@ -5,11 +5,11 @@
 package com.tec02.gui.panelGui;
 
 import com.alibaba.fastjson.JSONObject;
-import com.tec02.common.JsonBodyAPI;
+import com.tec02.common.API.JsonBodyAPI;
 import com.tec02.common.Keyword;
-import com.tec02.common.RequestParam;
-import com.tec02.common.RestAPI;
-import com.tec02.common.RestUtil;
+import com.tec02.common.API.RequestParam;
+import com.tec02.common.API.RestAPI;
+import com.tec02.common.API.RestUtil;
 import com.tec02.gui.IAction;
 import com.tec02.gui.Panelupdate;
 import com.tec02.gui.frameGui.Component.MyTable;
@@ -70,6 +70,7 @@ public class TableAndLocation extends Panelupdate {
     }
 
     public boolean update(RequestParam param, JsonBodyAPI bodyAPI) {
+        restUtil.setShowJoptionMess(true);
         boolean rs = this.restUtil.update(urlPut, param, bodyAPI);
         this.find();
         return rs;
@@ -117,6 +118,7 @@ public class TableAndLocation extends Panelupdate {
 
     public void getList(String name) throws HeadlessException {
         clear();
+        restUtil.setShowJoptionMess(false);
         List<JSONObject> items = this.restUtil.getList(urlGet,
                 RequestParam.builder()
                         .addParam("pName", getProductSelection())
@@ -136,6 +138,7 @@ public class TableAndLocation extends Panelupdate {
 
     public void addNew(JsonBodyAPI bodyAPI) throws HeadlessException {
         // TODO add your handling code here:
+        restUtil.setShowJoptionMess(true);
         this.restUtil.addNew(urlPost, new RequestParam()
                 .addParam("pName", getProductSelection())
                 .addParam("sName", getStationSelection())
@@ -144,6 +147,7 @@ public class TableAndLocation extends Panelupdate {
     }
 
     public void uploadFile(JsonBodyAPI bodyAPI, String path) {
+        restUtil.setShowJoptionMess(true);
         this.restUtil.uploadFile(urlPost, 
                 new RequestParam()
                 .addParam("pName", getProductSelection())
@@ -163,6 +167,7 @@ public class TableAndLocation extends Panelupdate {
         if (option != JOptionPane.OK_OPTION) {
             return;
         }
+        restUtil.setShowJoptionMess(true);
         this.restUtil.delete(urlDelete, RequestParam.builder().addParam("id", ids));
         getList(null);
     }

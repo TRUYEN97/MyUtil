@@ -6,11 +6,11 @@ package com.tec02.gui.panelGui;
 
 import com.alibaba.fastjson.JSONObject;
 import com.tec02.common.JOptionUtil;
-import com.tec02.common.JsonBodyAPI;
+import com.tec02.common.API.JsonBodyAPI;
 import com.tec02.common.Keyword;
-import com.tec02.common.RequestParam;
-import com.tec02.common.RestAPI;
-import com.tec02.common.RestUtil;
+import com.tec02.common.API.RequestParam;
+import com.tec02.common.API.RestAPI;
+import com.tec02.common.API.RestUtil;
 import com.tec02.gui.Panelupdate;
 import com.tec02.gui.frameGui.Component.MyTable;
 import com.tec02.gui.frameGui.Component.PopupMenu;
@@ -28,7 +28,7 @@ import javax.swing.JOptionPane;
  * @author Administrator
  */
 public class FileUpdatePanel extends Panelupdate {
-    
+
     private final RestUtil restUtil;
     private final MyTable myTable;
     private final TreeFolder treeFolder;
@@ -65,6 +65,7 @@ public class FileUpdatePanel extends Panelupdate {
             }
             File[] files = input.getSelectedFiles();
             boolean enable = input.isCheckBoxSelected();
+            boolean success = false;
             if (files == null || files.length <= 1) {
                 String name = input.getFileName();
                 if (name == null || name.isBlank()) {
@@ -72,7 +73,7 @@ public class FileUpdatePanel extends Panelupdate {
                     return;
                 }
                 if (files == null || files.length == 0) {
-                    this.restUtil.update(PropertiesModel.getConfig(Keyword.Url.File.PUT), 
+                    success = this.restUtil.update(PropertiesModel.getConfig(Keyword.Url.File.PUT),
                             null,
                             JsonBodyAPI.builder()
                                     .put(Keyword.ID, fileID)
@@ -81,7 +82,7 @@ public class FileUpdatePanel extends Panelupdate {
                                     .put(Keyword.ENABLE, enable)
                                     .put(Keyword.PARENT_ID, fgroupId));
                 } else {
-                    this.restUtil.uploadFile(PropertiesModel.getConfig(Keyword.Url.File.POST),
+                    success = this.restUtil.uploadFile(PropertiesModel.getConfig(Keyword.Url.File.POST),
                             new JsonBodyAPI().put(Keyword.DIR, folder)
                                     .put(Keyword.ID, fileID)
                                     .put(Keyword.NAME, name)
@@ -97,7 +98,7 @@ public class FileUpdatePanel extends Panelupdate {
                         JOptionUtil.showMessage("file not exists! %s", file);
                         continue;
                     }
-                    if (this.restUtil.uploadFile(PropertiesModel.getConfig(Keyword.Url.File.POST),
+                    if (!this.restUtil.uploadFile(PropertiesModel.getConfig(Keyword.Url.File.POST),
                             new JsonBodyAPI().put(Keyword.DIR, folder)
                                     .put(Keyword.ID, fileID)
                                     .put(Keyword.NAME, file.getName())
@@ -106,13 +107,17 @@ public class FileUpdatePanel extends Panelupdate {
                                     .put(Keyword.PARENT_ID, fgroupId)
                                     .put(Keyword.ENABLE, enable),
                             file.getPath())) {
-                    } else {
+                        success = true;
                         break;
+                    } else {
+                        success = false;
                     }
                 }
 
             }
-            getAllFile();
+            if (success) {
+                getAllFile();
+            }
         });
         PopupMenu menu = this.treeFolder.getPopupMenu();
         menu.addItemMenu("update tree", (e) -> {
@@ -274,6 +279,7 @@ public class FileUpdatePanel extends Panelupdate {
             @Override
             public void run() {
                 try {
+                    restUtil.setShowJoptionMess(false);
                     List<JSONObject> list = restUtil.getList(
                             PropertiesModel.getConfig(Keyword.Url.File.GET),
                             RequestParam.builder().addParam("id", fgroupId));
@@ -312,7 +318,6 @@ public class FileUpdatePanel extends Panelupdate {
         this.fileID = null;
         this.fileUploadPn.clear();
     }
-
 
     private String getInfomation(Map map) {
         return String.format("Version: %s\r\nMD5: %s\r\nDetail: %s",

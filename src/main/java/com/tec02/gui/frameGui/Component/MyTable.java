@@ -315,7 +315,8 @@ public class MyTable {
         if (columns == null || (columnIndex = columns.indexOf(columnName)) < 0 || rowSelected < 0) {
             return null;
         }
-        return (T) this.model.getValueAt(rowSelected, columnIndex);
+        var val = this.model.getValueAt(rowSelected, columnIndex);
+        return val == null? null: (T) val; 
     }
 
     public Object getRowValue(int row, String columnName) {

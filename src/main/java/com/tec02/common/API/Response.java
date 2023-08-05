@@ -2,9 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.tec02.common;
+package com.tec02.common.API;
 
 import com.alibaba.fastjson.JSONObject;
+import com.tec02.common.DataWareHouse;
 import java.awt.HeadlessException;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -110,10 +111,10 @@ public class Response {
         }
     }
 
-    public boolean isFailStatusAndShowMessage() throws HeadlessException {
+    public boolean isFailStatusAndShowMessage(boolean showJoptionMess) throws HeadlessException {
         if (!getStatus()) {
             String mess = getMessage();
-            if (this.textComponent != null) {
+            if (this.textComponent != null && !showJoptionMess) {
                 this.textComponent.setText(mess);
             } else {
                 JOptionPane.showMessageDialog(null, String.valueOf(mess));

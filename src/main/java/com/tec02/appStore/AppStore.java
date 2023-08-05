@@ -2,22 +2,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package com.tec02.gui.panelGui;
+package com.tec02.appStore;
 
 import com.tec02.appStore.analysis.AppPackage;
-import com.tec02.appStore.StoreLoger;
-import com.tec02.appStore.StorePanel;
 import com.tec02.appStore.analysis.AppManagement;
-import com.tec02.common.JsonBodyAPI;
+import com.tec02.common.API.JsonBodyAPI;
 import com.tec02.common.Keyword;
-import com.tec02.common.MyObjectMapper;
 import com.tec02.common.ProgramInformation;
-import com.tec02.common.RequestParam;
-import com.tec02.common.RestAPI;
+import com.tec02.common.API.RequestParam;
+import com.tec02.common.API.RestAPI;
 import com.tec02.gui.Panelupdate;
 import com.tec02.common.PropertiesModel;
-import com.tec02.common.RestUtil;
-import java.io.IOException;
+import com.tec02.common.API.RestUtil;
+import com.tec02.gui.panelGui.UserInfomation;
 import javax.swing.Timer;
 
 /**
@@ -29,7 +26,6 @@ public class AppStore extends Panelupdate {
     private final UserInfomation userInfo;
     private final StorePanel storePanel;
     private final AppPackage appPackage;
-    private final StoreLoger loger;
     private final AppManagement appManagement;
     private final RestUtil restUtil;
     private final ProgramInformation pcInfo;
@@ -46,18 +42,22 @@ public class AppStore extends Panelupdate {
         this.pcInfo = ProgramInformation.getInstance();
         this.restUtil = new RestUtil(api);
         api.setTextComponent(txtShowMessage);
-        this.loger = new StoreLoger();
-        this.appManagement = new AppManagement(api, this.loger);
+        StoreLoger loger = new StoreLoger();
+        this.appPackage = new AppPackage(api, loger);
+        this.appManagement = new AppManagement(api, loger);
         this.storePanel = new StorePanel(this.appManagement, 3, 3);
+        this.pnStore.add(this.storePanel);
+        this.storePanel.update();
         this.userInfo = new UserInfomation(api);
         this.pnUser.add(userInfo);
         this.userInfo.update();
-        this.pnStore.add(this.storePanel);
-        this.storePanel.update();
-        this.appPackage = new AppPackage(api, this.loger);
         checkAppUpdate();
-        new Timer(PropertiesModel.getInteger(Keyword.Store.UPDATE_TIME, 20000), (e) -> {
+        new Timer(PropertiesModel.getInteger(Keyword.Store.UPDATE_TIME, 10000), (e) -> {
             checkAppUpdate();
+        }).start();
+        new Timer( 1000, (e) -> {
+            this.appManagement.checkUpdate(this.appPackage.getApps().values());
+            this.storePanel.updateApp();
         }).start();
     }
 
@@ -77,8 +77,6 @@ public class AppStore extends Panelupdate {
         updatePcInfo();
         this.appPackage.checkAppUpdate(RequestParam.builder().addParam(Keyword.PC_NAME,
                 ProgramInformation.getInstance().getPcName()));
-        this.appManagement.checkUpdate(this.appPackage.getApps().values());
-        this.storePanel.updateApp();
     }
 
     /**
@@ -95,7 +93,7 @@ public class AppStore extends Panelupdate {
         jScrollPane1 = new javax.swing.JScrollPane();
         txtShowMessage = new javax.swing.JTextArea();
 
-        pnStore.setBackground(new java.awt.Color(204, 255, 255));
+        pnStore.setBackground(new java.awt.Color(153, 204, 255));
         pnStore.setLayout(new javax.swing.BoxLayout(pnStore, javax.swing.BoxLayout.LINE_AXIS));
 
         pnUser.setBackground(new java.awt.Color(204, 204, 255));
@@ -121,7 +119,7 @@ public class AppStore extends Panelupdate {
                         .addContainerGap()
                         .addComponent(jScrollPane1)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnStore, javax.swing.GroupLayout.DEFAULT_SIZE, 628, Short.MAX_VALUE)
+                .addComponent(pnStore, javax.swing.GroupLayout.DEFAULT_SIZE, 682, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(

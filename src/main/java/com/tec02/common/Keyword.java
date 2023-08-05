@@ -18,10 +18,11 @@ public final class Keyword {
     public static final String VERSION = "version";
     public static final String ENABLE = "enable";
     public static final String PATH = "path";
-    public static final String AWAYS_UPDATE = "awaysUpdate";
+    public static final String AWAYS_RUN = "awaysRun";
     public static final String PASSWORD = "password";
     public static final String COMMAND = "command";
     public static final String PC_NAME = "pcname";
+    public static final String IDS = "ids";
 
     public static final class FilterName {
 
@@ -100,8 +101,6 @@ public final class Keyword {
         public static final class Program {
 
             public static final String GET_PCS = "api.url.program.get.pc";
-            public static final String GET_FGROUP = "api.url.program.get.fgroup";
-            public static final String GET_FGROUPS = "api.url.program.get.fgroups";
             public static final String GET_PROGRAMS = "api.url.program.get.fileprograms";
             public static final String GET_FILE_PROGRAM_VSERSION = "api.url.program.get.fileprogram.version";
             public static final String GET = "api.url.program.get";
@@ -109,6 +108,8 @@ public final class Keyword {
             public static final String POST = "api.url.program.post";
             public static final String DELETE = "api.url.program.delete";
             public static final String PUT = "api.url.program.put";
+            public static final String GET_FGROUP = "api.url.program.get.fgroup";
+            public static final String GET_FGROUPS = "api.url.program.get.fgroups";
             public static final String PUT_FGROUP = "api.url.program.put.fgroup";
             public static final String PUT_FILE_PROGRAM= "api.url.program.put.fprogram";
         }

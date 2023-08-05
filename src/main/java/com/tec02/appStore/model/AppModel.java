@@ -17,7 +17,7 @@ public class AppModel {
     private Object id;
     private String name;
     private String password;
-    private boolean awaysUpdate;
+    private boolean awaysRun;
     private String description;
     private FileModel fileProgram;
     private final Map<Object, FileModel> files = new HashMap<>();
@@ -26,8 +26,12 @@ public class AppModel {
         return fileProgram;
     }
 
-    public boolean isAwaysUpdate() {
-        return awaysUpdate;
+    public void setFileProgram(FileModel fileProgram) {
+        this.fileProgram = fileProgram;
+    }
+    
+    public boolean isAwaysRun() {
+        return awaysRun;
     }
 
     public Path getLocalPath(String dir) {

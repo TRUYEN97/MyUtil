@@ -5,7 +5,7 @@
 package com.tec02.gui.guiInterface;
 
 import com.tec02.gui.IAction;
-import com.tec02.common.RestAPI;
+import com.tec02.common.API.RestAPI;
 import com.tec02.gui.PopupMenuFilterAction;
 import com.tec02.gui.panelGui.FilterUnit;
 import com.tec02.gui.panelGui.MyFilter;

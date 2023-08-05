@@ -5,12 +5,11 @@
 package com.tec02.gui.panelGui;
 
 import com.alibaba.fastjson.JSONObject;
-import com.tec02.common.JOptionUtil;
-import com.tec02.common.JsonBodyAPI;
+import com.tec02.common.API.JsonBodyAPI;
 import com.tec02.common.Keyword;
-import com.tec02.common.RequestParam;
-import com.tec02.common.RestAPI;
-import com.tec02.common.RestUtil;
+import com.tec02.common.API.RequestParam;
+import com.tec02.common.API.RestAPI;
+import com.tec02.common.API.RestUtil;
 import com.tec02.gui.Panelupdate;
 import com.tec02.gui.frameGui.Component.MyTable;
 import com.tec02.gui.frameGui.Component.PopupMenu;
@@ -85,8 +84,9 @@ public class UploadFileProgramPanel extends Panelupdate {
             }
             File[] files = input.getSelectedFiles();
             boolean enable = input.isCheckBoxSelected();
+            boolean succes = false;
             if (files != null && files.length == 1) {
-                this.restUtil.uploadFile(PropertiesModel.getConfig(Keyword.Url.FileProgram.POST),
+                succes = this.restUtil.uploadFile(PropertiesModel.getConfig(Keyword.Url.FileProgram.POST),
                         RequestParam.builder()
                                 .addParam("pName", pName)
                                 .addParam("sName", sName)
@@ -99,23 +99,26 @@ public class UploadFileProgramPanel extends Panelupdate {
                                 .put(Keyword.ENABLE, enable),
                         files[0].getPath());
             } else {
-                this.restUtil.update(PropertiesModel.getConfig(Keyword.Url.FileProgram.PUT), null,
+                succes = this.restUtil.update(PropertiesModel.getConfig(Keyword.Url.FileProgram.PUT), null,
                         JsonBodyAPI.builder()
                                 .put(Keyword.ID, fileID)
                                 .put(Keyword.NAME, name)
                                 .put(Keyword.DIR, folder)
                                 .put(Keyword.ENABLE, enable));
             }
-            getFileVersion();
+            if (succes) {
+                getFileVersion();
+            }
         });
     }
 
     private void getFileVersion() throws HeadlessException {
+        this.restUtil.setShowJoptionMess(false);
         JSONObject fileInfo = this.restUtil.getList(
                 PropertiesModel.getConfig(Keyword.Url.FileProgram.GET),
                 RequestParam.builder()
                         .addParam(Keyword.ID, fileID));
-        if(fileInfo == null){
+        if (fileInfo == null) {
             return;
         }
         List<JSONObject> list = this.restUtil.getList(
@@ -124,9 +127,9 @@ public class UploadFileProgramPanel extends Panelupdate {
                         .addParam(Keyword.ID, fileID));
         this.myTable.setDatas(list);
         this.fileUploadPn.setLbID(
-                String.format("%s - %s", 
-                fileID,
-                fileInfo.getString(Keyword.NAME)));
+                String.format("%s - %s",
+                        fileID,
+                        fileInfo.getString(Keyword.NAME)));
         this.fileUploadPn.setDir(fileInfo.getString(Keyword.PATH));
         this.fileUploadPn.setFileName(fileInfo.getString(Keyword.NAME));
         if (list != null && !list.isEmpty()) {

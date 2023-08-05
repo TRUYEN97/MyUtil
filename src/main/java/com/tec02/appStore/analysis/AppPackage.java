@@ -6,11 +6,12 @@ package com.tec02.appStore.analysis;
 
 import com.tec02.appStore.StoreLoger;
 import com.tec02.appStore.model.AppModel;
+import com.tec02.appStore.model.AppRemove;
 import com.tec02.appStore.model.FileModel;
 import com.tec02.common.Keyword;
-import com.tec02.common.RequestParam;
-import com.tec02.common.RestAPI;
-import com.tec02.common.RestUtil;
+import com.tec02.common.API.RequestParam;
+import com.tec02.common.API.RestAPI;
+import com.tec02.common.API.RestUtil;
 import com.tec02.common.Util;
 import com.tec02.common.PropertiesModel;
 import java.awt.HeadlessException;
@@ -32,6 +33,7 @@ public class AppPackage {
     public AppPackage(RestAPI api, StoreLoger loger) throws IOException {
         this.restUtil = new RestUtil(api);
         this.backupDir = PropertiesModel.getConfig(Keyword.Store.LOCAL_BACKUP);
+        Util.deleteFolder(new File(backupDir));
         this.appBackUp = new Repository(loger);
         this.loger = loger;
     }
@@ -49,16 +51,16 @@ public class AppPackage {
         return this.appBackUp.getAppModels();
     }
 
-    private void removeAppFiles(Map<Object, AppModel> appRemoves) {
+    private void removeAppFiles(Map<Object, AppRemove> appRemoves) {
         if (appRemoves == null) {
             return;
         }
-        for (AppModel appModel : appRemoves.values()) {
-            var files = appModel.getFiles();
+        for (AppRemove appRemove : appRemoves.values()) {
+            var files = appRemove.getFiles();
             if (files == null || files.isEmpty()) {
                 continue;
             }
-            this.appBackUp.deleteApp(appModel.getFiles().values(), backupDir);
+            this.appBackUp.deleteApp(appRemove, backupDir);
         }
     }
 

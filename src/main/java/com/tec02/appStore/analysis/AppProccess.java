@@ -4,18 +4,17 @@
  */
 package com.tec02.appStore.analysis;
 
+import com.tec02.appStore.AppConsole;
 import com.tec02.appStore.model.AppModel;
 import com.tec02.common.JOptionUtil;
 import com.tec02.common.Keyword;
 import com.tec02.communication.Communicate.Impl.Cmd.Cmd;
 import com.tec02.common.PropertiesModel;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.JPasswordField;
+import javax.swing.Timer;
 import javax.swing.filechooser.FileSystemView;
 
 /**
@@ -24,16 +23,26 @@ import javax.swing.filechooser.FileSystemView;
  */
 public class AppProccess {
 
+    private final String dir;
+    private final Cmd cmd;
+    private final AppConsole console;
+    private final Timer timer;
     private Thread thread;
     private AppModel appModel;
     private Path runFile;
-    private Path localPath;
-    private final String dir;
-    private Cmd cmd;
+    private boolean needUpdate;
 
     public AppProccess() {
         this.dir = PropertiesModel.getConfig(Keyword.Store.LOCAL_APP);
         this.cmd = new Cmd();
+        this.console = new AppConsole();
+        this.timer = new Timer(10000, (e) -> {
+            if (this.appModel.isAwaysRun()) {
+                runApp();
+            } else {
+                AppProccess.this.timer.stop();
+            }
+        });
     }
 
     public AppModel getAppModel() {
@@ -49,28 +58,39 @@ public class AppProccess {
 
     public void setRunFile(AppModel appModel) {
         this.appModel = appModel;
-        this.localPath = this.appModel.getLocalPath(dir);
+        this.needUpdate = false;
         this.runFile = this.appModel.getFileProgram().getLocalPath(dir);
+        if (this.appModel.isAwaysRun()) {
+            this.timer.start();
+        } else {
+            this.timer.stop();
+        }
     }
 
     public boolean isRuning() {
         return appModel != null && thread != null && thread.isAlive();
     }
 
+    public void showConsole() {
+        if (isRuning()) {
+            this.console.display(String.format("Console: %s", appModel.getName()));
+        }
+    }
+
     public synchronized void runApp() {
         if (appModel == null || isRuning()) {
             return;
         }
-        String password = getPassword();
-        if (password != null && !password.isBlank()) {
-            JPasswordField passwordField = new JPasswordField();
-            JOptionUtil.showObject(passwordField, "Password");
-            String pass = new String(passwordField.getPassword());
-            if (!pass.equals(password)) {
-                return;
-            }
-        }
         this.thread = new Thread(() -> {
+            String password = getPassword();
+            if (password != null && !password.isBlank()) {
+                JPasswordField passwordField = new JPasswordField();
+                JOptionUtil.showObject(passwordField, "Password");
+                String pass = new String(passwordField.getPassword());
+                if (!pass.equals(password)) {
+                    return;
+                }
+            }
             String fileName = runFile.getFileName().toString().toLowerCase();
             String commandRun;
             if (fileName.endsWith(".jar")) {
@@ -83,10 +103,12 @@ public class AppProccess {
             if (!cmd.insertCommand(commandRun)) {
                 return;
             }
+            this.console.clear();
             String line;
             while ((line = cmd.readLine()) != null) {
-                System.out.println(line);
+                this.console.append(String.format("%s\r\n", line));
             }
+            this.console.dispose();
         });
         thread.start();
     }
@@ -128,10 +150,12 @@ public class AppProccess {
         return runFile.toFile();
     }
 
-    public void stopRun() {
-        if (isRuning()) {
-            cmd.destroy();
-        }
+    public boolean isNeedUpdate() {
+        return needUpdate;
+    }
+    
+    public void setNeedToUpdate() {
+        this.needUpdate = true;
     }
 
 }

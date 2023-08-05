@@ -17,12 +17,17 @@ public class FileModel {
     protected String filename;
     protected String filepath;
     protected String appName;
+    protected String version;
     protected String md5;
 
     public Path getLocalPath(String dir) {
         return Path.of(dir, appName, filepath, filename);
     }
 
+    public String getVersion() {
+        return version;
+    }
+    
     public void setAppName(String appName) {
         this.appName = appName;
     }

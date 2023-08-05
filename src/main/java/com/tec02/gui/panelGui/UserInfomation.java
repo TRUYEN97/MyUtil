@@ -5,12 +5,11 @@
 package com.tec02.gui.panelGui;
 
 import com.tec02.common.JOptionUtil;
-import com.tec02.common.JsonBodyAPI;
+import com.tec02.common.API.JsonBodyAPI;
 import com.tec02.common.Keyword;
-import com.tec02.common.RestAPI;
+import com.tec02.common.API.RestAPI;
 import com.tec02.gui.Panelupdate;
 import com.tec02.common.PropertiesModel;
-import java.io.IOException;
 import javax.swing.Timer;
 
 /**
@@ -146,7 +145,7 @@ public class UserInfomation extends Panelupdate {
                 var response = this.restAPI.sendPost(this.model.getProperty(Keyword.Url.LOGIN), JsonBodyAPI.builder()
                         .put("userid", name)
                         .put("password", password));
-                if (!response.isFailStatusAndShowMessage()) {
+                if (!response.isFailStatusAndShowMessage(true)) {
                     this.restAPI.setJwtToken(response.getData());
                 }
             }, null);
