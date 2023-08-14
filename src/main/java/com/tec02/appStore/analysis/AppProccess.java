@@ -192,4 +192,8 @@ public class AppProccess {
         return response != null && response.contains("SUCCESS: Sent termination signal to the process with PID");
     }
 
+    public boolean isAlwaysUpdate() {
+        return this.appModel != null && this.appModel.isAlwaysUpdate();
+    }
+
 }

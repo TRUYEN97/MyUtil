@@ -53,6 +53,7 @@ public class AppManagement {
                 }
                 List<Object> idRemoves = new ArrayList<>();
                 for (Object id : appRemoves.keySet()) {
+                    stopAppIfAwalysUpdate(id);
                     var app = appRemoves.get(id);
                     if (isChangeable(id)) {
                         this.checkAppChanged.deleteApp(app, appDir);
@@ -83,6 +84,7 @@ public class AppManagement {
         for (Object id : appRemoveds.keySet()) {
             AppRemove appRemove = appRemoveds.get(id);
             if (this.appProccesses.containsKey(id)) {
+                stopAppIfAwalysUpdate(id);
                 if (isChangeable(id)) {
                     hasChange = true;
                     this.checkAppChanged.deleteApp(appRemove, appDir);
@@ -101,6 +103,7 @@ public class AppManagement {
             }
             try {
                 proccess.setRunFile(appModel);
+                stopAppIfAwalysUpdate(id);
                 if (checkAppUpdate(appModel, id)) {
                     hasChange = true;
                     proccess.setNeedToUpdate(false);
@@ -114,8 +117,15 @@ public class AppManagement {
         this.appProccesses.keySet().retainAll(apps.keySet());
     }
 
+    private void stopAppIfAwalysUpdate(Object id) {
+        var appProcess = this.appProccesses.get(id);
+        if (appProcess != null && appProcess.isAlwaysUpdate()) {
+            appProcess.stop();
+        }
+    }
+
     private boolean isChangeable(Object id) {
-        if(!appProccesses.containsKey(id)){
+        if (!appProccesses.containsKey(id)) {
             return true;
         }
         AppProccess appProccess = appProccesses.get(id);
