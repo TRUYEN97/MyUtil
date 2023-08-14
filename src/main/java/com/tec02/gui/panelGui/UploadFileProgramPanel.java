@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.tec02.common.API.JsonBodyAPI;
 import com.tec02.common.Keyword;
 import com.tec02.common.API.RequestParam;
+import com.tec02.common.API.Response;
 import com.tec02.common.API.RestAPI;
 import com.tec02.common.API.RestUtil;
 import com.tec02.gui.Panelupdate;
@@ -15,7 +16,6 @@ import com.tec02.gui.frameGui.Component.MyTable;
 import com.tec02.gui.frameGui.Component.PopupMenu;
 import com.tec02.common.PropertiesModel;
 import java.awt.HeadlessException;
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
@@ -82,11 +82,11 @@ public class UploadFileProgramPanel extends Panelupdate {
                 JOptionPane.showMessageDialog(null, "file name is empty!");
                 return;
             }
-            File[] files = input.getSelectedFiles();
+            var files = input.getFileSelected();
             boolean enable = input.isCheckBoxSelected();
             boolean succes = false;
-            if (files != null && files.length == 1) {
-                succes = this.restUtil.uploadFile(PropertiesModel.getConfig(Keyword.Url.FileProgram.POST),
+            if (files != null && files.size() == 1) {
+                Response response = this.restUtil.uploadFileWithResponse(PropertiesModel.getConfig(Keyword.Url.FileProgram.POST),
                         RequestParam.builder()
                                 .addParam("pName", pName)
                                 .addParam("sName", sName)
@@ -97,14 +97,20 @@ public class UploadFileProgramPanel extends Panelupdate {
                                 .put(Keyword.VERSION, version)
                                 .put(Keyword.DESCRIPTION, des)
                                 .put(Keyword.ENABLE, enable),
-                        files[0].getPath());
+                        files.get(0).getLocalPath().toString(), true);
+                if (response.getStatus()) {
+                    input.clear();
+                    JSONObject data = response.getData();
+                    fileID = data.get("id");
+                    succes = true;
+                }
             } else {
                 succes = this.restUtil.update(PropertiesModel.getConfig(Keyword.Url.FileProgram.PUT), null,
                         JsonBodyAPI.builder()
                                 .put(Keyword.ID, fileID)
                                 .put(Keyword.NAME, name)
                                 .put(Keyword.DIR, folder)
-                                .put(Keyword.ENABLE, enable));
+                                .put(Keyword.ENABLE, enable), true);
             }
             if (succes) {
                 getFileVersion();
@@ -113,7 +119,6 @@ public class UploadFileProgramPanel extends Panelupdate {
     }
 
     private void getFileVersion() throws HeadlessException {
-        this.restUtil.setShowJoptionMess(false);
         JSONObject fileInfo = this.restUtil.getList(
                 PropertiesModel.getConfig(Keyword.Url.FileProgram.GET),
                 RequestParam.builder()
@@ -175,7 +180,7 @@ public class UploadFileProgramPanel extends Panelupdate {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 841, Short.MAX_VALUE)
                     .addComponent(pnUp, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -183,7 +188,7 @@ public class UploadFileProgramPanel extends Panelupdate {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pnUp, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(pnUp, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -202,7 +207,9 @@ public class UploadFileProgramPanel extends Panelupdate {
         this.sName = sName;
         this.lName = lName;
         this.fileID = fileID;
-        setBorder(javax.swing.BorderFactory.createTitledBorder(String.valueOf(name)));
+        if (name != null && name.isBlank()) {
+            setBorder(javax.swing.BorderFactory.createTitledBorder(name));
+        }
         this.getFileVersion();
     }
 
@@ -214,6 +221,8 @@ public class UploadFileProgramPanel extends Panelupdate {
 
     private void showVersionInfo(Map<String, Object> map) {
         Object enable = map.get(Keyword.ENABLE);
+        Object version = map.getOrDefault(Keyword.NAME, "1.0.0");
+        this.fileUploadPn.setVersion(version.toString());
         this.fileUploadPn.setCheckBox(enable == null ? false : Boolean.parseBoolean(enable.toString()));
         this.fileUploadPn.setDescription(getInfomation(map));
     }

@@ -15,7 +15,8 @@ import com.tec02.gui.Panelupdate;
 import com.tec02.common.PropertiesModel;
 import com.tec02.common.API.RestUtil;
 import com.tec02.gui.panelGui.UserInfomation;
-import javax.swing.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -29,6 +30,7 @@ public class AppStore extends Panelupdate {
     private final AppManagement appManagement;
     private final RestUtil restUtil;
     private final ProgramInformation pcInfo;
+    private final Object lock;
     private boolean pcUpdate;
 
     /**
@@ -39,9 +41,9 @@ public class AppStore extends Panelupdate {
      */
     public AppStore(RestAPI api) throws Exception {
         initComponents();
+        api.setTextComponent(txtShowMessage);
         this.pcInfo = ProgramInformation.getInstance();
         this.restUtil = new RestUtil(api);
-        api.setTextComponent(txtShowMessage);
         StoreLoger loger = new StoreLoger();
         this.appPackage = new AppPackage(api, loger);
         this.appManagement = new AppManagement(api, loger);
@@ -51,13 +53,35 @@ public class AppStore extends Panelupdate {
         this.userInfo = new UserInfomation(api);
         this.pnUser.add(userInfo);
         this.userInfo.update();
-        checkAppUpdate();
-        new Timer(PropertiesModel.getInteger(Keyword.Store.UPDATE_TIME, 10000), (e) -> {
-            checkAppUpdate();
+        this.lock = new Object();
+        new Thread(() -> {
+            int time = PropertiesModel.getInteger(Keyword.Store.UPDATE_TIME, 10000);
+            while (true) {
+                try {
+                    synchronized (lock) {
+                        checkAppUpdate();
+                        lock.notifyAll();
+                    }
+                    Thread.sleep(time);
+                } catch (Exception ex) {
+                }
+            }
         }).start();
-        new Timer( 1000, (e) -> {
-            this.appManagement.checkUpdate(this.appPackage.getApps().values());
-            this.storePanel.updateApp();
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+            }
+            while (true) {
+                try {
+                    synchronized (lock) {
+                        this.appManagement.checkUpdate(this.appPackage.getApps().values());
+                        this.storePanel.updateApp();
+                    }
+                    Thread.sleep(1000);
+                } catch (Exception ex) {
+                }
+            }
         }).start();
     }
 
@@ -68,7 +92,7 @@ public class AppStore extends Panelupdate {
                     JsonBodyAPI.builder()
                             .put("os", pcInfo.getSystemName())
                             .put("mac", pcInfo.getMacs().toString())
-                            .put("ip", pcInfo.getIps().toString())
+                            .put("ip", pcInfo.getIps().toString()), false
             );
         }
     }

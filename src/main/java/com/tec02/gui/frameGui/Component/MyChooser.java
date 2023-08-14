@@ -80,7 +80,7 @@ public class MyChooser {
         return showOpen(myChooser, dir, component);
     }
     
-    public int showOpenMitiFile(Component component, String dir) {
+    public int showOpenMultiFile(Component component, String dir) {
         JFileChooser myChooser = chooserFileOnly();
         myChooser.setMultiSelectionEnabled(true);
         return showOpen(myChooser, dir, component);

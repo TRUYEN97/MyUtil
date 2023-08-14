@@ -6,8 +6,8 @@ package com.tec02.appStore;
 
 import com.tec02.appStore.analysis.AppManagement;
 import com.tec02.appStore.analysis.AppProccess;
+import com.tec02.common.JOptionUtil;
 import com.tec02.gui.Panelupdate;
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,8 +51,6 @@ public class StorePanel extends Panelupdate {
         }
     }
 
-    
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -76,24 +74,18 @@ public class StorePanel extends Panelupdate {
 
     public void updateApp() {
         AppUnit appUnit;
-        Collection<AppProccess> appProccesses = this.appManagement.getAppProccesses().values();
-        clear();
-        for (AppProccess app : appProccesses) {
-            if ((appUnit = findAppUnitFree()) != null) {
-                appUnit.setAppProccess(app);
-            } else {
-                System.out.println("not contain unit free");
+        if (this.appManagement.isHasChange()) {
+            Collection<AppProccess> appProccesses = this.appManagement.getAppProccesses().values();
+            clear();
+            for (AppProccess app : appProccesses) {
+                if ((appUnit = findAppUnitFree()) != null) {
+                    appUnit.setAppProccess(app);
+                } else {
+                    JOptionUtil.showMessage("App panel no have unit free");
+                    break;
+                }
             }
         }
-    }
-
-    private AppUnit findAppUnit(Object id) {
-        for (AppUnit appUnit : appUnits) {
-            if (appUnit.containAppID(id)) {
-                return appUnit;
-            }
-        }
-        return null;
     }
 
     private AppUnit findAppUnitFree() {

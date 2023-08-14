@@ -18,12 +18,17 @@ public class FileModel {
     protected String filepath;
     protected String appName;
     protected String version;
+    protected String description;
     protected String md5;
 
     public Path getLocalPath(String dir) {
         return Path.of(dir, appName, filepath, filename);
     }
 
+    public String getDescription() {
+        return description;
+    }
+    
     public String getVersion() {
         return version;
     }

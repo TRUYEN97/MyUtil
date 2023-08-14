@@ -63,16 +63,16 @@ public class FileUpdatePanel extends Panelupdate {
                 JOptionPane.showMessageDialog(null, "version is empty!");
                 return;
             }
-            File[] files = input.getSelectedFiles();
+            var files = input.getFileSelected();
             boolean enable = input.isCheckBoxSelected();
             boolean success = false;
-            if (files == null || files.length <= 1) {
+            if (files == null || files.size() <= 1) {
                 String name = input.getFileName();
                 if (name == null || name.isBlank()) {
                     JOptionPane.showMessageDialog(null, "file name is empty!");
                     return;
                 }
-                if (files == null || files.length == 0) {
+                if (files == null || files.isEmpty()) {
                     success = this.restUtil.update(PropertiesModel.getConfig(Keyword.Url.File.PUT),
                             null,
                             JsonBodyAPI.builder()
@@ -90,16 +90,17 @@ public class FileUpdatePanel extends Panelupdate {
                                     .put(Keyword.DESCRIPTION, des)
                                     .put(Keyword.PARENT_ID, fgroupId)
                                     .put(Keyword.ENABLE, enable),
-                            files[0].getPath());
+                            files.get(0).getLocalPath().toString());
                 }
             } else {
-                for (File file : files) {
+                for (var fileModel : files) {
+                    File file = fileModel.getLocalPath().toFile();
                     if (!file.exists()) {
                         JOptionUtil.showMessage("file not exists! %s", file);
                         continue;
                     }
-                    if (!this.restUtil.uploadFile(PropertiesModel.getConfig(Keyword.Url.File.POST),
-                            new JsonBodyAPI().put(Keyword.DIR, folder)
+                    if (this.restUtil.uploadFile(PropertiesModel.getConfig(Keyword.Url.File.POST),
+                            new JsonBodyAPI().put(Keyword.DIR, fileModel.getSubPath().toFile().getParent())
                                     .put(Keyword.ID, fileID)
                                     .put(Keyword.NAME, file.getName())
                                     .put(Keyword.VERSION, version)
@@ -108,9 +109,9 @@ public class FileUpdatePanel extends Panelupdate {
                                     .put(Keyword.ENABLE, enable),
                             file.getPath())) {
                         success = true;
-                        break;
                     } else {
                         success = false;
+                        break;
                     }
                 }
 
@@ -165,6 +166,8 @@ public class FileUpdatePanel extends Panelupdate {
 
     private void showVersionInfo(Map<String, Object> map) {
         Object enable = map.get(Keyword.ENABLE);
+        Object version = map.getOrDefault(Keyword.NAME, "1.0.0");
+        this.fileUploadPn.setVersion(version.toString());
         this.fileUploadPn.setCheckBox(enable == null ? false : Boolean.parseBoolean(enable.toString()));
         this.fileUploadPn.setDescription(getInfomation(map));
     }
@@ -221,10 +224,10 @@ public class FileUpdatePanel extends Panelupdate {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnFileUpload, javax.swing.GroupLayout.PREFERRED_SIZE, 538, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pnFileUpload, javax.swing.GroupLayout.DEFAULT_SIZE, 538, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -279,7 +282,6 @@ public class FileUpdatePanel extends Panelupdate {
             @Override
             public void run() {
                 try {
-                    restUtil.setShowJoptionMess(false);
                     List<JSONObject> list = restUtil.getList(
                             PropertiesModel.getConfig(Keyword.Url.File.GET),
                             RequestParam.builder().addParam("id", fgroupId));

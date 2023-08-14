@@ -4,6 +4,7 @@
  */
 package com.tec02.appStore;
 
+import com.tec02.appStore.analysis.AppManagement;
 import com.tec02.appStore.analysis.AppProccess;
 import com.tec02.common.JOptionUtil;
 import com.tec02.gui.Panelupdate;
@@ -23,7 +24,6 @@ public class AppUnit extends Panelupdate {
     private Color bgColor;
     private final PopupMenu popupMenu;
     private AppProccess appProccess;
-    private final Timer timer;
 
     public AppUnit() {
         initComponents();
@@ -32,16 +32,30 @@ public class AppUnit extends Panelupdate {
         this.popupMenu.addItemMenu("Run", (e) -> {
             runApp();
         });
-        this.timer = new Timer(500, (e) -> {
-            if (appProccess != null &&appProccess.isRuning()) {
-                this.lb_icon.setBorder(new LineBorder(Color.GREEN, 2, true));
-            } else {
-                AppUnit.this.timer.stop();
+        new Timer(500, (e) -> {
+            if (appProccess == null) {
                 this.lb_icon.setBorder(null);
+            } else {
+                if (appProccess.isNeedUpdate()) {
+                    this.lb_icon.setBorder(new LineBorder(Color.YELLOW, 2, true));
+                } else if (appProccess.isRuning()) {
+                    this.lb_icon.setBorder(new LineBorder(Color.GREEN, 2, true));
+                } else {
+                    this.lb_icon.setBorder(null);
+                }
+            }
+        }).start();
+        this.popupMenu.addItemMenu("Refresh", (e) -> {
+            display();
+        });
+        this.popupMenu.addItemMenu("Stop", (e) -> {
+            if(!this.appProccess.stop()){
+                JOptionUtil.showMessage("Can not stop %s", 
+                        this.appProccess.getAppName());
             }
         });
-        this.popupMenu.addItemMenu("Show console", (e) -> {
-            appProccess.showConsole();
+        this.popupMenu.addItemMenu("Show description", (e) -> {
+            JOptionUtil.showObject(appProccess.getDescription(), appProccess.getAppName());
         });
 
     }
@@ -53,18 +67,17 @@ public class AppUnit extends Panelupdate {
         this.pnAppVid.setBackground(bgColor);
         this.validate();
     }
-    
-    
 
     private void runApp() {
         if (this.appProccess.isRuning()) {
             JOptionUtil.showMessage("%s is runing", this.appProccess.getAppName());
+        } else if (this.appProccess.isNeedUpdate()) {
+            JOptionUtil.showMessage("updating %s...", this.appProccess.getAppName());
         } else {
             if (appProccess == null) {
                 return;
             }
             setCursor(new Cursor(Cursor.WAIT_CURSOR));
-            this.timer.start();
             appProccess.runApp();
             setCursor(Cursor.getDefaultCursor());
         }

@@ -34,7 +34,6 @@ public class ConfigGui extends AbsDisplayAble {
      * @param api
      */
     public ConfigGui(RestAPI api) {
-        super();
         initComponents();
         this.tableModel = new MyTable(tbShow);
         if (api == null) {

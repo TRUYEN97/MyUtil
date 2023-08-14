@@ -17,6 +17,7 @@ com\tec02\gui\Panelupdate.class
 com\tec02\common\API\JsonBodyAPI.class
 com\tec02\gui\frameGui\Component\MyTable$CellValue.class
 com\tec02\gui\panelGui\ProgramEditPanel.class
+com\tec02\gui\panelGui\FileUploadPn$selectFileModel.class
 com\tec02\gui\frameGui\Component\MyChooser.class
 com\tec02\appStore\analysis\AppManagement.class
 com\tec02\appStore\analysis\Repository.class
@@ -87,6 +88,8 @@ Time\WaitTime\Class\TimeS.class
 com\tec02\communication\Communicate\ReadStreamOverTime.class
 com\tec02\appStore\AppConsole.class
 com\tec02\gui\panelGui\TableAndLocation$1.class
+com\tec02\appStore\analysis\AppManagement$MessageManage.class
+com\tec02\common\API\APIController.class
 com\tec02\gui\panelGui\LocationFilter$3.class
 com\tec02\appStore\StoreLoger.class
 com\tec02\gui\frameGui\LogView.class

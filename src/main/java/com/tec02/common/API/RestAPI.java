@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;

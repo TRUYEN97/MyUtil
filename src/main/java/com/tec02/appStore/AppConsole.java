@@ -5,6 +5,7 @@
 package com.tec02.appStore;
 
 import com.tec02.gui.frameGui.AbsDisplayAble;
+import java.awt.Color;
 import java.awt.event.MouseEvent;
 import javax.swing.text.DefaultCaret;
 
@@ -18,11 +19,23 @@ public class AppConsole extends AbsDisplayAble {
 
     /**
      * Creates new form AppConsole
+     *
+     * @param blackGroup
+     * @param size
      */
-    public AppConsole() {
+    public AppConsole(boolean blackGroup, int size) {
         initComponents();
         this.caret = (DefaultCaret) this.txtAreaConsole.getCaret();
         autoCrolls();
+        txtAreaConsole.setFont(new java.awt.Font("Segoe UI", 0, size));
+        if (!blackGroup) {
+            this.txtAreaConsole.setBackground(Color.WHITE);
+            this.txtAreaConsole.setForeground(Color.BLACK);
+        }
+    }
+    
+    public AppConsole() {
+        this(true, 14);
     }
 
     public void clear() {
@@ -86,8 +99,8 @@ public class AppConsole extends AbsDisplayAble {
 
     private void txtAreaConsoleMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtAreaConsoleMouseClicked
         // TODO add your handling code here:
-        if (evt.getButton() == MouseEvent.BUTTON3 || 
-                (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() > 1)) {
+        if (evt.getButton() == MouseEvent.BUTTON3
+                || (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() > 1)) {
             autoCrolls();
         }
     }//GEN-LAST:event_txtAreaConsoleMouseClicked

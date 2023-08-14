@@ -10,6 +10,7 @@ package com.tec02.common;
  */
 public final class Keyword {
 
+    public static final String ACTION = "action";
     public static final String DIR = "dir";
     public static final String ID = "id";
     public static final String PARENT_ID = "parentId";
@@ -18,7 +19,8 @@ public final class Keyword {
     public static final String VERSION = "version";
     public static final String ENABLE = "enable";
     public static final String PATH = "path";
-    public static final String AWAYS_RUN = "awaysRun";
+    public static final String ALWAYS_RUN = "alwaysRun";
+    public static final String ALWAYS_UPDATE = "alwaysUpdate";
     public static final String PASSWORD = "password";
     public static final String COMMAND = "command";
     public static final String PC_NAME = "pcname";

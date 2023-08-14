@@ -96,14 +96,12 @@ public class JOptionUtil {
             return null;
         }
     }
-    
+
     public static <T extends Map> T getTableSelectedItem(String title, List<? extends Map> items, String... columns) {
         if (items == null) {
             return null;
         }
         JTable tbList = new JTable();
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setViewportView(tbList);
         MyTable myTable = new MyTable(tbList);
         myTable.setModeSelection(ListSelectionModel.SINGLE_SELECTION);
         myTable.setDoubleClickAction((input) -> {
@@ -111,6 +109,8 @@ public class JOptionUtil {
             JOptionPane.showMessageDialog(null, cell.getValue(), cell.getColoum(), JOptionPane.DEFAULT_OPTION);
         });
         myTable.setDatas(items, columns);
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(tbList);
         Object[] components = {"Select an Item:", scrollPane};
         int result = JOptionPane.showOptionDialog(null, components, title,
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
@@ -146,8 +146,18 @@ public class JOptionUtil {
         JOptionPane.showMessageDialog(null, object, name, JOptionPane.PLAIN_MESSAGE);
     }
 
+    public static void showTextArea(String text, String name) {
+        JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        textArea.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        textArea.setText(text);
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(textArea);
+        showObject(scrollPane, name);
+    }
+
     public static void showMessage(String format, Object... params) {
-         JOptionPane.showMessageDialog(null, String.format(format, params));
+        JOptionPane.showMessageDialog(null, String.format(format, params));
     }
 
     public interface INewAction {

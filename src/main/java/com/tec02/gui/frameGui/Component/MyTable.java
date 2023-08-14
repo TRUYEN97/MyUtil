@@ -71,8 +71,8 @@ public class MyTable {
             });
         }
     }
-    
-    public void setModeSelection(int selectionMode){
+
+    public void setModeSelection(int selectionMode) {
         this.table.setSelectionMode(selectionMode);
     }
 
@@ -83,7 +83,7 @@ public class MyTable {
             }
             return;
         }
-        if (e.getClickCount() > 1 && e.getButton() == MouseEvent.BUTTON1 
+        if (e.getClickCount() > 1 && e.getButton() == MouseEvent.BUTTON1
                 && getSelectedRowCount() == 1 && doubleClickAction != null) {
             doubleClickAction.action(e);
         } else if (e.getButton() == MouseEvent.BUTTON3) {
@@ -224,7 +224,7 @@ public class MyTable {
 
     public void addRow(Map<String, Object> values) {
         List<Object> objects = new ArrayList<>();
-        if(columns == null){
+        if (columns == null) {
             return;
         }
         for (String column : columns) {
@@ -265,7 +265,7 @@ public class MyTable {
     public Map<String, Object> getDataWithCoumns(List<String> columns, int index) {
         Map<String, Object> data;
         data = new HashMap<>();
-        if(columns == null){
+        if (columns == null) {
             return data;
         }
         for (String column : columns) {
@@ -316,7 +316,7 @@ public class MyTable {
             return null;
         }
         var val = this.model.getValueAt(rowSelected, columnIndex);
-        return val == null? null: (T) val; 
+        return val == null ? null : (T) val;
     }
 
     public Object getRowValue(int row, String columnName) {
@@ -370,7 +370,7 @@ public class MyTable {
 
     public void setValueAt(int row, String columnName, Object value) {
         int columnIndex;
-        if(columns == null){
+        if (columns == null) {
             return;
         }
         if ((columnIndex = columns.indexOf(columnName)) < 0) {
@@ -402,17 +402,17 @@ public class MyTable {
         }
         return new CellValue(this.model.getColumnName(column), getSelectedCell());
     }
-    
+
     public static final String VALUE = "value";
     public static final String COLUMN = "column";
 
     public void setDatas(List<? extends Map> items, String... columns) {
         setDatas(items, List.of(columns));
     }
-    
+
     public void setDatas(List<? extends Map> items, Collection<String> columns) {
         clear();
-        if(items == null){
+        if (items == null) {
             return;
         }
         if (columns != null && !columns.isEmpty()) {
@@ -432,7 +432,7 @@ public class MyTable {
         }
         return getMapRowsWithIndexsColumns(index, columns);
     }
-    
+
     public Map<String, Object> getRowSelectedMapValue() {
         int index = getSelectedRow();
         if (index == -1) {
@@ -444,8 +444,13 @@ public class MyTable {
     public void clearSelection() {
         table.clearSelection();
     }
-    
-    public class CellValue{
+
+    public boolean isDataEmpty() {
+        return table.getRowCount() == 0;
+    }
+
+    public class CellValue {
+
         private final String coloum;
         private final Object value;
 
@@ -458,9 +463,9 @@ public class MyTable {
             return coloum;
         }
 
-        public<T> T getValue() {
+        public <T> T getValue() {
             return (T) value;
         }
-        
+
     }
 }

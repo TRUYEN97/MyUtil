@@ -31,10 +31,10 @@ public class Repository {
     }
 
     public synchronized Map<Object, AppRemove> setData(Collection<AppModel> newAppModels) {
-        Map<Object, AppRemove> appRemoveds = new HashMap<>();
-        if (newAppModels == null) {
-            return appRemoveds;
+        if(newAppModels == null){
+            return null;
         }
+        Map<Object, AppRemove> appRemoveds = new HashMap<>();
         Map<Object, AppModel> temps = new HashMap<>();
         for (AppModel newAppModel : newAppModels) {
             temps.put(newAppModel.getId(), newAppModel);
@@ -132,6 +132,9 @@ public class Repository {
     }
 
     public Map<Object, AppRemove> setJsonArrayData(JSONArray object) {
+        if(object == null){
+            return null;
+        }
         return setData(MyObjectMapper.convertToList(object, AppModel.class));
     }
 

@@ -4,6 +4,7 @@
  */
 package com.tec02.common.API;
 
+import com.alibaba.fastjson.JSONObject;
 import com.tec02.common.FileInfo;
 import com.tec02.gui.frameGui.Component.MyChooser;
 import java.awt.HeadlessException;
@@ -19,52 +20,68 @@ import javax.swing.JOptionPane;
 public class RestUtil {
 
     private final RestAPI aPI;
-    private boolean showJoptionMess;
 
     public RestUtil(RestAPI aPI) {
         this.aPI = aPI;
-        this.showJoptionMess = false;
     }
 
     public RestAPI getApi() {
         return aPI;
     }
 
-    public void setShowJoptionMess(boolean showJoptionMess) {
-        this.showJoptionMess = showJoptionMess;
+    public boolean addNew(String url, RequestParam urlParam, JsonBodyAPI bodyAPI) throws HeadlessException {
+        return addNew(url, urlParam, bodyAPI, true);
     }
 
-    public boolean addNew(String url, RequestParam urlParam, JsonBodyAPI bodyAPI) throws HeadlessException {
+    public boolean addNew(String url, RequestParam urlParam, JsonBodyAPI bodyAPI, boolean showMess) throws HeadlessException {
         if (url == null) {
             JOptionPane.showMessageDialog(null, "url == null");
             return false;
         }
         Response response = this.aPI.sendPost(url, urlParam, bodyAPI);
-        return !response.isFailStatusAndShowMessage(true);
+        return !response.isFailStatusAndShowMessage(showMess);
     }
 
     public boolean uploadFile(String url, JsonBodyAPI bodyAPI, String filePath) {
-        return uploadFile(url, null, bodyAPI, filePath);
+        return uploadFile(url, null, bodyAPI, filePath, true);
     }
 
-    public boolean uploadFile(String url, RequestParam param, JsonBodyAPI bodyAPI, String filePath) throws HeadlessException {
+    public boolean uploadFile(String url, JsonBodyAPI bodyAPI, String filePath, boolean showMess) {
+        return uploadFile(url, null, bodyAPI, filePath, showMess);
+    }
+
+    public boolean uploadFile(String url, RequestParam param, JsonBodyAPI bodyAPI, String filePath) {
+        return uploadFile(url, param, bodyAPI, filePath, true);
+    }
+    
+    public boolean uploadFile(String url, RequestParam param, JsonBodyAPI bodyAPI, String filePath, boolean showMess){
+        Response response = uploadFileWithResponse(url, param, bodyAPI, filePath, showMess);
+        return response.getStatus();
+    }
+
+    public synchronized Response uploadFileWithResponse(String url, RequestParam param, JsonBodyAPI bodyAPI, String filePath, boolean showMess) throws HeadlessException {
         if (url == null) {
             JOptionPane.showMessageDialog(null, "url == null");
-            return false;
+            return null;
         }
         File file = new File(filePath);
         if (!file.exists()) {
             JOptionPane.showMessageDialog(null, String.format("file is not exists! path: %s", filePath));
-            return false;
+            return null;
         }
         FileInfo fileInfo = new FileInfo(FileInfo.type.FILE);
         fileInfo.setFile(file);
         fileInfo.setName(file.getName());
         Response response = this.aPI.uploadFile(url, param, bodyAPI, fileInfo);
-        return !response.isFailStatusAndShowMessage(true);
+        response.isFailStatusAndShowMessage(showMess);
+        return response;
+    }
+    
+    public boolean downloadFileSaveByPathOnServer(String url, RequestParam param, String path){
+        return downloadFileSaveByPathOnServer(url, param, path, false);
     }
 
-    public boolean downloadFileSaveByPathOnServer(String url, RequestParam param, String path) throws HeadlessException {
+    public boolean downloadFileSaveByPathOnServer(String url, RequestParam param, String path, boolean showMess) throws HeadlessException {
         if (url == null) {
             JOptionPane.showMessageDialog(null, "url == null");
             return false;
@@ -72,10 +89,14 @@ public class RestUtil {
         Response response = this.aPI.downloadFile(url, param, (jsono) -> {
             return Path.of(path).toFile();
         });
-        return !response.isFailStatusAndShowMessage(showJoptionMess);
+        return !response.isFailStatusAndShowMessage(showMess);
+    }
+    
+    public boolean downloadFileSaveByChooseFile(String url, RequestParam param){
+        return downloadFileSaveByChooseFile(url, param, true);
     }
 
-    public boolean downloadFileSaveByChooseFile(String url, RequestParam param) throws HeadlessException {
+    public boolean downloadFileSaveByChooseFile(String url, RequestParam param, boolean showMess) throws HeadlessException {
         if (url == null) {
             JOptionPane.showMessageDialog(null, "url == null");
             return false;
@@ -88,36 +109,49 @@ public class RestUtil {
             }
             return null;
         });
-        return !response.isFailStatusAndShowMessage(true);
+        return !response.isFailStatusAndShowMessage(showMess);
     }
+    
+    public <T> T getList(String url, RequestParam param){
+        return getList(url, param, false);
+    }
+    
 
-    public <T> T getList(String url, RequestParam param) throws HeadlessException {
+    public <T> T getList(String url, RequestParam param, boolean showMess) throws HeadlessException {
         if (url == null) {
             JOptionPane.showMessageDialog(null, "url == null");
             return null;
         }
         Response response = this.aPI.sendGet(url, param);
-        if (response.isFailStatusAndShowMessage(showJoptionMess)) {
+        if (response.isFailStatusAndShowMessage(showMess)) {
             return null;
         }
         return response.getData();
     }
 
     public boolean delete(String url, RequestParam param) {
+        return delete(url, param, true);
+    }
+    
+    public boolean delete(String url, RequestParam param, boolean showMess) {
         if (url == null) {
             JOptionPane.showMessageDialog(null, "url == null");
             return false;
         }
         Response response = this.aPI.sendDelete(url, param);
-        return !response.isFailStatusAndShowMessage(true);
+        return !response.isFailStatusAndShowMessage(showMess);
     }
 
     public boolean update(String url, RequestParam queryParam, JsonBodyAPI bodyAPI) {
+        return update(url, queryParam, bodyAPI, true);
+    }
+    
+    public boolean update(String url, RequestParam queryParam, JsonBodyAPI bodyAPI, boolean showMess) {
         if (url == null) {
             JOptionPane.showMessageDialog(null, "url == null");
             return false;
         }
         Response response = this.aPI.sendPut(url, queryParam, bodyAPI);
-        return !response.isFailStatusAndShowMessage(true);
+        return !response.isFailStatusAndShowMessage(showMess);
     }
 }
