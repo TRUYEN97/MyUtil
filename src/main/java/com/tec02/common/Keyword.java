@@ -26,6 +26,12 @@ public final class Keyword {
     public static final String PC_NAME = "pcname";
     public static final String IDS = "ids";
 
+    public static final class Socket {
+
+        public static final String PORT = "socket_port";
+        public static final String DEBUG = "socket_debug";
+    }
+    
     public static final class FilterName {
 
         public static final String LINE = "Line";

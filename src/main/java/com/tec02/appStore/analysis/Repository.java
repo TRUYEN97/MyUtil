@@ -7,13 +7,14 @@ package com.tec02.appStore.analysis;
 import com.alibaba.fastjson.JSONArray;
 import com.tec02.appStore.StoreLoger;
 import com.tec02.appStore.model.AppModel;
-import com.tec02.appStore.model.AppRemove;
+import com.tec02.appStore.model.AppUpdateModel;
 import com.tec02.appStore.model.FileModel;
 import com.tec02.common.MyObjectMapper;
-import com.tec02.common.Util;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,7 +23,7 @@ import java.util.Map;
  */
 public class Repository {
 
-    private final Map<Object, AppModel> appModels;
+    private final Map<Object, AppUpdateModel> appModels;
     private final StoreLoger loger;
 
     public Repository(StoreLoger loger) {
@@ -30,41 +31,58 @@ public class Repository {
         this.loger = loger;
     }
 
-    public synchronized Map<Object, AppRemove> setData(Collection<AppModel> newAppModels) {
-        if(newAppModels == null){
+    public synchronized List<AppModel> setData(Collection<? extends AppModel> newAppModels) {
+        if (newAppModels == null) {
             return null;
         }
-        Map<Object, AppRemove> appRemoveds = new HashMap<>();
-        Map<Object, AppModel> temps = new HashMap<>();
-        for (AppModel newAppModel : newAppModels) {
-            temps.put(newAppModel.getId(), newAppModel);
+        Map<Object, AppUpdateModel> temps = new HashMap<>();
+        for (AppModel model : newAppModels) {
+            AppUpdateModel newAppModel = new AppUpdateModel();
+            newAppModel.setId(model.getId());
+            newAppModel.setName(model.getName());
+            newAppModel.setPassword(model.getPassword());
+            newAppModel.setAlwaysRun(model.isAlwaysRun());
+            newAppModel.setAlwaysUpdate(model.isAlwaysUpdate());
+            newAppModel.setDescription(model.getDescription());
+            newAppModel.setFileProgram(model.getFileProgram());
+            newAppModel.setFiles(model.getFiles());
+            temps.put(model.getId(), newAppModel);
         }
         Object id;
-        AppRemove appRemove;
-        for (AppModel appModel : appModels.values()) {
+        AppUpdateModel newApp;
+        List<AppModel> appRemoveds = new ArrayList<>();
+        for (AppUpdateModel appModel : appModels.values()) {
             id = appModel.getId();
-            appRemove = new AppRemove();
-            appRemove.setName(appModel.getName());
             if (temps.containsKey(id)) {
-                appRemove.setDeleteAll(false);
-                appRemove.setFileProgram(
-                        compareFile(
-                                temps.get(id).getFileProgram(),
-                                appModel.getFileProgram()));
-                appRemove.setFiles(getAllFileNeedToRemove(temps.get(id), appModel));
-                if (appRemove.getFileProgram() != null || !appRemove.getFiles().isEmpty()) {
-                    appRemoveds.put(id, appRemove);
+                newApp = temps.get(id);
+                var oldList = appModel.getRemoveFiles();
+                if (oldList != null && !oldList.isEmpty()) {
+                    newApp.setRemoveFiles(oldList);
                 }
+                newApp.addRemoveFiles(
+                        getAllFileNeedToRemove(newApp, appModel));
+                newApp.addRemoveFile(
+                        compareFile(newApp.getFileProgram(),
+                                appModel.getFileProgram()
+                        ));
             } else {
-                appRemove.setDeleteAll(true);
-                appRemove.setFileProgram(appModel.getFileProgram());
-                appRemove.setFiles(appModel.getFiles());
-                appRemoveds.put(id, appRemove);
+                appRemoveds.add(appModel);
             }
         }
         appModels.clear();
         appModels.putAll(temps);
         return appRemoveds;
+    }
+
+    public List<AppModel> setJsonArrayData(JSONArray object) {
+        if (object == null) {
+            return null;
+        }
+        return setData(MyObjectMapper.convertToList(object, AppModel.class));
+    }
+
+    public Map<Object, AppUpdateModel> getAppModels() {
+        return appModels;
     }
 
     private FileModel compareFile(FileModel fileModelNew, FileModel fileModelOld) {
@@ -82,30 +100,41 @@ public class Repository {
         return removes;
     }
 
-    public void deleteApp(AppRemove app, String dir) {
+    public boolean deleteAppFiles(AppUpdateModel app, String dir) {
         if (app == null) {
-            return;
+            return true;
         }
-        if (app.isDeleteAll()) {
-            Util.deleteFolder(app.getLocalPath(dir).toFile());
-        } else {
-            deleteFile(app.getFileProgram(), dir);
-            for (FileModel fileModel : app.getFiles().values()) {
-                deleteFile(fileModel, dir);
+        boolean rs = true;
+        var files = app.getRemoveFiles();
+        if (files != null && !files.isEmpty()) {
+            List<Object> idRemove = new ArrayList<>();
+            for (FileModel fileModel : files.values()) {
+                if (this.deleteFile(fileModel, dir)) {
+                    idRemove.add(fileModel.getId());
+                } else {
+                    rs = false;
+                }
+            }
+            for (Object id : idRemove) {
+                files.remove(id);
             }
         }
+        return rs;
     }
 
-    public void deleteFile(FileModel fileModel, String dir) {
+    public boolean deleteFile(FileModel fileModel, String dir) {
         if (fileModel == null) {
-            return;
+            return true;
         }
         File file;
         file = fileModel.getLocalPath(dir).toFile();
+        boolean rs = true;
         if (file.exists()) {
-            this.loger.addLog("REMOVE", "%s -> %s", file.getPath(), file.delete());
+            rs = file.delete();
+            this.loger.addLog("REMOVE", "%s -> %s", file.getPath(), rs);
         }
         clearStore(file);
+        return rs;
     }
 
     private void clearStore(File file) {
@@ -129,17 +158,6 @@ public class Repository {
             }
             file.delete();
         }
-    }
-
-    public Map<Object, AppRemove> setJsonArrayData(JSONArray object) {
-        if(object == null){
-            return null;
-        }
-        return setData(MyObjectMapper.convertToList(object, AppModel.class));
-    }
-
-    public Map<Object, AppModel> getAppModels() {
-        return appModels;
     }
 
     private Map<Object, FileModel> compare(Map<Object, FileModel> fileOlds, Map<Object, FileModel> fileNews) {

@@ -23,7 +23,16 @@ public class PropertiesModel {
     public final void init() throws Exception {
         properties.load(getClass().getResourceAsStream("/config.properties"));
     }
-
+    
+    public static boolean getBoolean(String key, boolean defaultVal) {
+        String str = getConfig(key);
+        if(str == null){
+            return defaultVal;
+        }else{
+            return Boolean.parseBoolean(str);
+        }
+    }
+    
     public static PropertiesModel getInstance() throws Exception {
         PropertiesModel ins = PropertiesModel.instance;
         if (ins == null) {

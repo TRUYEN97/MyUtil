@@ -4,7 +4,7 @@
  */
 package com.tec02.myloger;
 
-import Time.TimeBase;
+import com.tec02.Time.TimeBase;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

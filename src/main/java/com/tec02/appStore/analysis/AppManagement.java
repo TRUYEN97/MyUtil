@@ -4,21 +4,21 @@
  */
 package com.tec02.appStore.analysis;
 
-import com.tec02.appStore.AppConsole;
 import com.tec02.appStore.StoreLoger;
 import com.tec02.appStore.model.AppModel;
-import com.tec02.appStore.model.AppRemove;
+import com.tec02.appStore.model.AppUpdateModel;
 import com.tec02.appStore.model.FileModel;
 import com.tec02.common.Keyword;
 import com.tec02.common.API.RestAPI;
+import com.tec02.common.JOptionUtil;
 import com.tec02.common.Util;
 import com.tec02.common.PropertiesModel;
+import com.tec02.gui.frameGui.AbsDisplayAble;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,192 +30,157 @@ public class AppManagement {
 
     private final Repository checkAppChanged;
     private final String appDir;
-    private final Map<Object, AppProccess> appProccesses;
     private final StoreLoger loger;
     private final String backupDir;
-    private final Map<Object, AppRemove> appRemoves;
-    private final MessageManage messageManage;
-    private boolean hasChange;
+    private final List<AppProcess> appRemoves;
+    private final AppProccessManagemant proccessManagemant;
+    private final Thread threadRemove;
 
-    public AppManagement(RestAPI api, StoreLoger loger) {
+    public AppManagement(RestAPI api, StoreLoger loger, AbsDisplayAble view) throws Exception {
         this.appDir = PropertiesModel.getConfig(Keyword.Store.LOCAL_APP);
         this.backupDir = PropertiesModel.getConfig(Keyword.Store.LOCAL_BACKUP);
-        Util.deleteFolder(new File(appDir));
+        this.proccessManagemant = new AppProccessManagemant(view);
         this.checkAppChanged = new Repository(loger);
-        this.appProccesses = new HashMap<>();
-        this.appRemoves = new HashMap<>();
-        this.messageManage = new MessageManage();
+        this.appRemoves = new ArrayList<>();
         this.loger = loger;
-        new Thread(() -> {
+        this.threadRemove = new Thread(() -> {
             while (true) {
-                if (appRemoves.isEmpty()) {
-                    return;
-                }
-                List<Object> idRemoves = new ArrayList<>();
-                for (Object id : appRemoves.keySet()) {
-                    stopAppIfAwalysUpdate(id);
-                    var app = appRemoves.get(id);
-                    if (isChangeable(id)) {
-                        this.checkAppChanged.deleteApp(app, appDir);
-                        if (app.isDeleteAll()) {
-                            idRemoves.add(id);
+                try {
+                    if (!appRemoves.isEmpty()) {
+                        for (int i = 0; i < appRemoves.size(); i++) {
+                            AppProcess app = appRemoves.get(i);
+                            if (isUpdateable(app)) {
+                                this.checkAppChanged.clear(app.getLocalPath(appDir));
+                                this.proccessManagemant.remove(app.getId());
+                                this.appRemoves.remove(app);
+                            } else {
+                                app.setCommandRemoveOrShowMessage();
+                            }
                         }
-                        hasChange = true;
-                    } else {
-                        messageManage.showAppConsole(id, app.getName(), "This program need to reset!");
                     }
-                }
-                for (Object id : idRemoves) {
-                    if (this.appRemoves.containsKey(id)) {
-                        this.appRemoves.remove(id);
-                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    JOptionUtil.showMessage(e.getMessage());
                 }
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException ex) {
                 }
             }
-        }).start();
+        });
     }
 
-    public void checkUpdate(Collection<AppModel> newApps) {
-        Map<Object, AppRemove> appRemoveds = this.checkAppChanged.setData(newApps);
-        Map<Object, AppModel> apps = this.checkAppChanged.getAppModels();
-        for (Object id : appRemoveds.keySet()) {
-            AppRemove appRemove = appRemoveds.get(id);
-            if (this.appProccesses.containsKey(id)) {
-                stopAppIfAwalysUpdate(id);
-                if (isChangeable(id)) {
-                    hasChange = true;
-                    this.checkAppChanged.deleteApp(appRemove, appDir);
-                } else {
-                    this.appRemoves.put(id, appRemove);
-                    this.appProccesses.get(id).setNeedToUpdate(true);
-                }
+    public void init() {
+        if (!threadRemove.isAlive()) {
+            threadRemove.start();
+        }
+    }
+
+    public synchronized void checkUpdate(Collection<? extends AppModel> newApps) {
+        List<AppModel> appRemoveds = this.checkAppChanged.setData(newApps);
+        for (AppModel appRemove : appRemoveds) {
+            Object id = appRemove.getId();
+            if (this.proccessManagemant.containsKey(id)) {
+                var appProcess = this.proccessManagemant.get(id);
+                this.appRemoves.add(appProcess);
+                appProcess.setWaitRemovedStatus(true);
             }
         }
+        Map<Object, AppUpdateModel> apps = this.checkAppChanged.getAppModels();
         for (Object id : apps.keySet()) {
-            AppModel appModel = apps.get(id);
-            AppProccess proccess;
-            if ((proccess = this.appProccesses.get(id)) == null) {
-                hasChange = true;
-                proccess = new AppProccess();
+            AppUpdateModel appModel = apps.get(id);
+            AppProcess appProcess = this.proccessManagemant.create(appModel);
+            if (this.appRemoves.contains(appProcess)) {
+                this.appRemoves.remove(appProcess);
+                appProcess.setWaitRemovedStatus(false);
             }
-            try {
-                proccess.setRunFile(appModel);
-                stopAppIfAwalysUpdate(id);
-                if (checkAppUpdate(appModel, id)) {
-                    hasChange = true;
-                    proccess.setNeedToUpdate(false);
+            update(appProcess);
+        }
+    }
+
+    public AppProccessManagemant getAppProccesses() {
+        return proccessManagemant;
+    }
+
+    private void update(AppProcess proccess) {
+        AppUpdateModel model = proccess.getAppModel();
+        var removeFiles = model.getRemoveFiles();
+        if (removeFiles != null && !removeFiles.isEmpty()) {
+            proccess.setUpdateStatus(true);
+            proccess.setNeedReset(true);
+            if (isUpdateable(proccess)) {
+                if (this.checkAppChanged.deleteAppFiles(model, appDir)) {
+                    proccess.setUpdateStatus(false);
                 }
-            } catch (Exception ex) {
-                proccess.setNeedToUpdate(true);
-                messageManage.showAppConsole(id, appModel.getName(), ex.getMessage());
-            }
-            this.appProccesses.put(id, proccess);
-        }
-        this.appProccesses.keySet().retainAll(apps.keySet());
-    }
-
-    private void stopAppIfAwalysUpdate(Object id) {
-        var appProcess = this.appProccesses.get(id);
-        if (appProcess != null && appProcess.isAlwaysUpdate()) {
-            appProcess.stop();
-        }
-    }
-
-    private boolean isChangeable(Object id) {
-        if (!appProccesses.containsKey(id)) {
-            return true;
-        }
-        AppProccess appProccess = appProccesses.get(id);
-        return !appProccess.isRuning();
-    }
-
-    public boolean isHasChange() {
-        return hasChange;
-    }
-
-    public Map<Object, AppProccess> getAppProccesses() {
-        hasChange = false;
-        return appProccesses;
-    }
-
-    private boolean checkAppUpdate(AppModel appModel, Object id) throws Exception {
-        boolean rs = false;
-        if (isUpdateFileProgram(appModel, id)) {
-            rs = true;
-        }
-        if (isUpdateFilesConfig(appModel, id)) {
-            rs = true;
-        }
-        return rs;
-    }
-
-    private boolean isUpdateFilesConfig(AppModel appModel, Object id) throws Exception {
-        boolean rs = false;
-        for (FileModel fileModel : appModel.getFiles().values()) {
-            if (isFileNeedToUpdate(fileModel)) {
-                if (isChangeable(id)) {
-                    copyFromBackup(fileModel);
-                } else {
-                    throw new Exception(String.format("Program %s has a new config file\r\nPlease! reset program",
-                            appModel.getName()));
-                }
-                rs = true;
-            }
-        }
-        return rs;
-    }
-
-    private boolean isUpdateFileProgram(AppModel appModel, Object id) throws Exception {
-        if (isFileNeedToUpdate(appModel.getFileProgram())) {
-            FileModel fileProgram = appModel.getFileProgram();
-            if (isChangeable(id)) {
-                copyFromBackup(fileProgram);
             } else {
-                throw new Exception(String.format("Program %s has a new version %s\r\nPlease! reset program",
-                        appModel.getName(),
-                        fileProgram == null ? "" : fileProgram.getVersion()));
+                proccess.sendCommandUpdateOrShowMessage();
+                return;
             }
-            return true;
         }
-        return false;
+        if (isFileNeedToUpdate(model.getFileProgram())) {
+            proccess.setUpdateStatus(true);
+            proccess.setNeedReset(true);
+            if (isUpdateable(proccess)) {
+                if (copyFromBackup(model.getFileProgram())) {
+                    proccess.setUpdateStatus(false);
+                }
+            } else {
+                proccess.sendCommandUpdateOrShowMessage();
+                return;
+            }
+        }
+        Collection<FileModel> fileModels = model.getFiles().values();
+        if (!fileModels.isEmpty()) {
+            for (FileModel fileModel : fileModels) {
+                if (isFileNeedToUpdate(fileModel)) {
+                    proccess.setUpdateStatus(true);
+                    proccess.setNeedReset(true);
+                    if (isUpdateable(proccess)) {
+                        if (copyFromBackup(fileModel)) {
+                            proccess.setUpdateStatus(false);
+                        } else {
+                            return;
+                        }
+                    } else {
+                        proccess.sendCommandUpdateOrShowMessage();
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     private boolean isFileNeedToUpdate(FileModel fileModel) {
+        if (fileModel == null) {
+            return false;
+        }
         File file = fileModel.getLocalPath(appDir).toFile();
         return !file.exists() || !Util.md5File(file.getPath())
                 .equals(fileModel.getMd5());
     }
 
-    private void copyFromBackup(FileModel fileModel) {
+    private boolean copyFromBackup(FileModel fileModel) {
+        if (fileModel == null) {
+            return true;
+        }
         File file = fileModel.getLocalPath(appDir).toFile();
         File fileBackUp = fileModel.getLocalPath(backupDir).toFile();
         try {
             Util.copyFile(fileBackUp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             this.loger.addLog("BACKUP", "%s -> %s, ok", fileBackUp.getPath(), file.getPath());
+            return true;
         } catch (IOException ex) {
             this.loger.addLog("BACKUP", "%s -> %s, Failed - %s",
                     fileBackUp.getPath(),
                     file.getPath(),
                     ex.getMessage());
+            return false;
         }
     }
 
-    class MessageManage {
-
-        private final Map<Object, AppConsole> messConsoles = new HashMap<>();
-
-        public void showAppConsole(Object id, String title, String mess) {
-            if (!messConsoles.containsKey(id)) {
-                messConsoles.put(id, new AppConsole());
-            }
-            AppConsole appConsole = messConsoles.get(id);
-            appConsole.clear();
-            appConsole.display(title);
-            appConsole.set(mess);
-        }
+    private boolean isUpdateable(AppProcess proccess) {
+        AppUpdateModel model = proccess.getAppModel();
+        return (model.isAlwaysUpdate() && proccess.stop()) || !proccess.isRuning();
     }
 
 }

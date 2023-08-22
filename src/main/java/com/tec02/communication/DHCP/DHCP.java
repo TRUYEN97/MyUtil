@@ -4,7 +4,7 @@
  */
 package com.tec02.communication.DHCP;
 
-import Time.TimeBase;
+import com.tec02.Time.TimeBase;
 import com.tec02.myloger.MyLoger;
 import java.io.File;
 import java.io.IOException;

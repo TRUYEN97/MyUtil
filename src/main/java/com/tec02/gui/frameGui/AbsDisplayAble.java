@@ -52,8 +52,8 @@ public abstract class AbsDisplayAble extends javax.swing.JFrame {
         }
         this.subFrame.add(frame);
     }
-    
-    protected void closeAllSubFrame(){
+
+    protected void closeAllSubFrame() {
         for (JFrame jFrame : subFrame) {
             jFrame.dispose();
         }
@@ -61,7 +61,9 @@ public abstract class AbsDisplayAble extends javax.swing.JFrame {
 
     public void display(String titleName) {
         java.awt.EventQueue.invokeLater(() -> {
-            setTitle(titleName);
+            if (titleName != null) {
+                setTitle(titleName);
+            }
             setVisible(true);
         });
     }

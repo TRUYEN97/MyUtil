@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  * @author Administrator
  */
-public class FileModel {
+public class FileModel implements Cloneable{
 
     protected Long id;
     protected String filename;
@@ -57,6 +57,45 @@ public class FileModel {
         return md5;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public void setFilepath(String filepath) {
+        this.filepath = filepath;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
+    
+    
+
+    @Override
+    public FileModel clone(){
+        FileModel clone = new FileModel();
+        clone.setAppName(appName);
+        clone.setDescription(description);
+        clone.setFilename(filename);
+        clone.setFilepath(filepath);
+        clone.setId(id);
+        clone.setMd5(md5);
+        clone.setVersion(version);
+        return clone;
+    }
+    
     /**
      *
      * @param obj

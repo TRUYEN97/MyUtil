@@ -5,12 +5,11 @@
 package com.tec02.appStore;
 
 import com.tec02.appStore.analysis.AppManagement;
-import com.tec02.appStore.analysis.AppProccess;
+import com.tec02.appStore.analysis.AppProcess;
 import com.tec02.common.JOptionUtil;
 import com.tec02.gui.Panelupdate;
 import java.awt.GridLayout;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -74,10 +73,10 @@ public class StorePanel extends Panelupdate {
 
     public void updateApp() {
         AppUnit appUnit;
-        if (this.appManagement.isHasChange()) {
-            Collection<AppProccess> appProccesses = this.appManagement.getAppProccesses().values();
+        var appProccesses = this.appManagement.getAppProccesses();
+        if (appProccesses.isHasChange()) {
             clear();
-            for (AppProccess app : appProccesses) {
+            for (AppProcess app : appProccesses.getAppProccesses()) {
                 if ((appUnit = findAppUnitFree()) != null) {
                     appUnit.setAppProccess(app);
                 } else {

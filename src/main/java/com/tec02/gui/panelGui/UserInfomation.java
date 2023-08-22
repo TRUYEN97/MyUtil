@@ -18,7 +18,6 @@ import javax.swing.Timer;
  */
 public class UserInfomation extends Panelupdate {
 
-    private final Timer timer;
     private final RestAPI restAPI;
     private final PropertiesModel model;
 
@@ -32,21 +31,29 @@ public class UserInfomation extends Panelupdate {
         initComponents();
         this.restAPI = restAPI;
         this.model = PropertiesModel.getInstance();
-        this.timer = new Timer(500, (e) -> {
-            String name = "Unknow";
-            String role = "...";
-            if (this.isUserAvalid()) {
-                name = this.restAPI.extractUsername();
-                role = this.restAPI.extractUserRole();
-                this.btLogIn_out.setText(LOGOUT);
-            } else {
-                this.restAPI.logout();
-                this.btLogIn_out.setText(LOGIN);
+        new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    String name = "Unknow";
+                    String role = "...";
+                    if (isUserAvalid()) {
+                        name = restAPI.extractUsername();
+                        role = restAPI.extractUserRole();
+                        btLogIn_out.setText(LOGOUT);
+                    } else {
+                        restAPI.logout();
+                        btLogIn_out.setText(LOGIN);
+                    }
+                    lbUserName.setText(name);
+                    lbUserRole.setText(role);
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                    }
+                }
             }
-            this.lbUserName.setText(name);
-            this.lbUserRole.setText(role);
-        });
-        this.timer.start();
+        }.start();
     }
     private static final String LOGOUT = "Logout";
     private static final String LOGIN = "Login";
@@ -140,7 +147,7 @@ public class UserInfomation extends Panelupdate {
         // TODO add your handling code here:
         if (this.restAPI.isTokenValid()) {
             this.restAPI.logout();
-        }else{
+        } else {
             JOptionUtil.login("Login", (name, password) -> {
                 var response = this.restAPI.sendPost(this.model.getProperty(Keyword.Url.LOGIN), JsonBodyAPI.builder()
                         .put("userid", name)
@@ -151,7 +158,6 @@ public class UserInfomation extends Panelupdate {
             }, null);
         }
     }//GEN-LAST:event_btLogIn_outActionPerformed
-
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

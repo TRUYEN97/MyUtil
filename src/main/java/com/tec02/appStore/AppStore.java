@@ -14,9 +14,9 @@ import com.tec02.common.API.RestAPI;
 import com.tec02.gui.Panelupdate;
 import com.tec02.common.PropertiesModel;
 import com.tec02.common.API.RestUtil;
+import com.tec02.common.JOptionUtil;
+import com.tec02.gui.frameGui.AbsDisplayAble;
 import com.tec02.gui.panelGui.UserInfomation;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -31,22 +31,27 @@ public class AppStore extends Panelupdate {
     private final RestUtil restUtil;
     private final ProgramInformation pcInfo;
     private final Object lock;
+    private final Thread threadUpdateBackup;
+    private final Thread threadUpdateApp;
+    private final Thread threadUpdateUI;
+    private final StoreLoger loger;
     private boolean pcUpdate;
 
     /**
      * Creates new form AppStore
      *
      * @param api
+     * @param view
      * @throws java.io.IOException
      */
-    public AppStore(RestAPI api) throws Exception {
+    public AppStore(RestAPI api, AbsDisplayAble view) throws Exception {
         initComponents();
         api.setTextComponent(txtShowMessage);
         this.pcInfo = ProgramInformation.getInstance();
         this.restUtil = new RestUtil(api);
-        StoreLoger loger = new StoreLoger();
+        this.loger = new StoreLoger();
         this.appPackage = new AppPackage(api, loger);
-        this.appManagement = new AppManagement(api, loger);
+        this.appManagement = new AppManagement(api, loger, view);
         this.storePanel = new StorePanel(this.appManagement, 3, 3);
         this.pnStore.add(this.storePanel);
         this.storePanel.update();
@@ -54,7 +59,7 @@ public class AppStore extends Panelupdate {
         this.pnUser.add(userInfo);
         this.userInfo.update();
         this.lock = new Object();
-        new Thread(() -> {
+        this.threadUpdateBackup = new Thread(() -> {
             int time = PropertiesModel.getInteger(Keyword.Store.UPDATE_TIME, 10000);
             while (true) {
                 try {
@@ -62,12 +67,18 @@ public class AppStore extends Panelupdate {
                         checkAppUpdate();
                         lock.notifyAll();
                     }
-                    Thread.sleep(time);
                 } catch (Exception ex) {
+                    ex.printStackTrace();
+                    this.loger.addLog("ERROR", "backup loop: %s", ex.getLocalizedMessage());
+                    JOptionUtil.showMessage(ex.getMessage());
+                }
+                try {
+                    Thread.sleep(time);
+                } catch (InterruptedException ex) {
                 }
             }
-        }).start();
-        new Thread(() -> {
+        });
+        this.threadUpdateApp = new Thread(() -> {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
@@ -78,11 +89,45 @@ public class AppStore extends Panelupdate {
                         this.appManagement.checkUpdate(this.appPackage.getApps().values());
                         this.storePanel.updateApp();
                     }
-                    Thread.sleep(1000);
                 } catch (Exception ex) {
+                    ex.printStackTrace();
+                    this.loger.addLog("ERROR", "app loop check: %s", ex.getLocalizedMessage());
+                    JOptionUtil.showMessage(ex.getMessage());
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
                 }
             }
-        }).start();
+        });
+        this.threadUpdateUI = new Thread(() -> {
+            while (true) {
+                try {
+                    this.storePanel.updateApp();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    this.loger.addLog("ERROR", "Show UI loop: %s", ex.getLocalizedMessage());
+                    JOptionUtil.showMessage(ex.getMessage());
+                }
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ex) {
+                }
+            }
+        });
+    }
+
+    public void run() {
+        if (!this.threadUpdateBackup.isAlive()) {
+            this.threadUpdateBackup.start();
+        }
+        if (!this.threadUpdateApp.isAlive()) {
+            this.threadUpdateApp.start();
+        }
+        if (!this.threadUpdateUI.isAlive()) {
+            this.threadUpdateUI.start();
+        }
+        this.appManagement.init();
     }
 
     private void updatePcInfo() {

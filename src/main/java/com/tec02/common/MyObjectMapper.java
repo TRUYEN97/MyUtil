@@ -5,11 +5,9 @@
 package com.tec02.common;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

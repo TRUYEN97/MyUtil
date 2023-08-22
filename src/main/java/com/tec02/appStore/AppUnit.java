@@ -4,15 +4,13 @@
  */
 package com.tec02.appStore;
 
-import com.tec02.appStore.analysis.AppManagement;
-import com.tec02.appStore.analysis.AppProccess;
+import com.tec02.appStore.analysis.AppProcess;
 import com.tec02.common.JOptionUtil;
 import com.tec02.gui.Panelupdate;
 import com.tec02.gui.frameGui.Component.PopupMenu;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
-import javax.swing.Timer;
 import javax.swing.border.LineBorder;
 
 /**
@@ -23,7 +21,7 @@ public class AppUnit extends Panelupdate {
 
     private Color bgColor;
     private final PopupMenu popupMenu;
-    private AppProccess appProccess;
+    private AppProcess appProccess;
 
     public AppUnit() {
         initComponents();
@@ -32,25 +30,43 @@ public class AppUnit extends Panelupdate {
         this.popupMenu.addItemMenu("Run", (e) -> {
             runApp();
         });
-        new Timer(500, (e) -> {
-            if (appProccess == null) {
-                this.lb_icon.setBorder(null);
-            } else {
-                if (appProccess.isNeedUpdate()) {
-                    this.lb_icon.setBorder(new LineBorder(Color.YELLOW, 2, true));
-                } else if (appProccess.isRuning()) {
-                    this.lb_icon.setBorder(new LineBorder(Color.GREEN, 2, true));
-                } else {
-                    this.lb_icon.setBorder(null);
+        new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        if (appProccess == null) {
+                            lb_icon.setBorder(null);
+                        } else {
+                            if (lb_icon.getIcon() == null) {
+                                display();
+                            }
+                            if (appProccess.isUpdateStatus()) {
+                                lb_icon.setBorder(new LineBorder(Color.YELLOW, 2, true));
+                            } else if (appProccess.isWaitRemove()) {
+                                lb_icon.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
+                            } else if (appProccess.isRuning()) {
+                                lb_icon.setBorder(new LineBorder(Color.GREEN, 2, true));
+                            } else {
+                                lb_icon.setBorder(null);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                    }
                 }
             }
-        }).start();
+        }.start();
         this.popupMenu.addItemMenu("Refresh", (e) -> {
             display();
         });
         this.popupMenu.addItemMenu("Stop", (e) -> {
-            if(!this.appProccess.stop()){
-                JOptionUtil.showMessage("Can not stop %s", 
+            if (this.appProccess.isRuning() && !this.appProccess.stop()) {
+                JOptionUtil.showMessage("Can not stop %s",
                         this.appProccess.getAppName());
             }
         });
@@ -60,21 +76,26 @@ public class AppUnit extends Panelupdate {
 
     }
 
+    private boolean appNotAvailable() {
+        return appProccess == null || lb_icon.getIcon() == null;
+    }
+
     @Override
     public final void update() {
         super.update();
         this.bgColor = getBackground();
         this.pnAppVid.setBackground(bgColor);
-        this.validate();
     }
 
     private void runApp() {
         if (this.appProccess.isRuning()) {
             JOptionUtil.showMessage("%s is runing", this.appProccess.getAppName());
-        } else if (this.appProccess.isNeedUpdate()) {
+        } else if (this.appProccess.isUpdateStatus()) {
             JOptionUtil.showMessage("updating %s...", this.appProccess.getAppName());
+        } else if (this.appProccess.isWaitRemove()) {
+            JOptionUtil.showMessage("App %s not available", this.appProccess.getAppName());
         } else {
-            if (appProccess == null) {
+            if (appNotAvailable()) {
                 return;
             }
             setCursor(new Cursor(Cursor.WAIT_CURSOR));
@@ -83,9 +104,8 @@ public class AppUnit extends Panelupdate {
         }
     }
 
-    public void setAppProccess(AppProccess appProccess) {
+    public void setAppProccess(AppProcess appProccess) {
         AppUnit.this.appProccess = appProccess;
-        display();
     }
 
     public void clear() {
@@ -172,7 +192,7 @@ public class AppUnit extends Panelupdate {
 
     private void formMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseEntered
         // TODO add your handling code here: 
-        if (appProccess == null) {
+        if (appNotAvailable()) {
             return;
         }
         this.pnAppVid.setBackground(bgColor.darker());
@@ -181,7 +201,7 @@ public class AppUnit extends Panelupdate {
 
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
         // TODO add your handling code here:
-        if (appProccess == null) {
+        if (appNotAvailable()) {
             return;
         }
         if (evt.getClickCount() > 1 && evt.getButton() == MouseEvent.BUTTON1) {
@@ -218,7 +238,6 @@ public class AppUnit extends Panelupdate {
         }
         showIcon();
         showAppName();
-        this.validate();
     }
 
     private void showAppName() {

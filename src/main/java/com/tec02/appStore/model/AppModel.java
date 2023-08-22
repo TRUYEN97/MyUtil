@@ -14,14 +14,14 @@ import java.util.Map;
  */
 public class AppModel {
 
-    private Object id;
-    private String name;
-    private String password;
-    private boolean alwaysRun;
-    private boolean alwaysUpdate;
-    private String description;
-    private FileModel fileProgram;
-    private final Map<Object, FileModel> files = new HashMap<>();
+    protected Object id;
+    protected String name;
+    protected String password;
+    protected boolean alwaysRun;
+    protected boolean alwaysUpdate;
+    protected String description;
+    protected FileModel fileProgram;
+    protected final Map<Object, FileModel> files = new HashMap<>();
 
     public FileModel getFileProgram() {
         return fileProgram;
@@ -71,5 +71,31 @@ public class AppModel {
     public boolean isEmpty() {
         return files.isEmpty();
     }
+
+    public void setId(Object id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setAlwaysRun(boolean alwaysRun) {
+        this.alwaysRun = alwaysRun;
+    }
+
+    public void setAlwaysUpdate(boolean alwaysUpdate) {
+        this.alwaysUpdate = alwaysUpdate;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    
 
 }

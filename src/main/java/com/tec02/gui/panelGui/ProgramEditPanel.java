@@ -39,6 +39,7 @@ public class ProgramEditPanel extends Panelupdate {
     private final FileUpdatePanel updateFile;
     private final UploadFileProgramPanel fileProgramPanel;
     private Object programId;
+    private Object fileProgramID;
 
     public ProgramEditPanel(RestAPI api) {
         initComponents();
@@ -61,16 +62,18 @@ public class ProgramEditPanel extends Panelupdate {
             showFileProgram();
         });
         fProgrampMenu.addItemMenu("change program", (e) -> {
-            Map<String, Object> fileProgram = JOptionUtil.getTableSelectedItem("select file-program",
+            Map<String, Object> fProgram = JOptionUtil.getTableSelectedItem("select file-program",
                     this.restUtil.getList(PropertiesModel.getConfig(Keyword.Url.Program.GET_PROGRAMS),
                             RequestParam.builder().addParam(Keyword.ID, programId)));
-            if (fileProgram == null || fileProgram.isEmpty()) {
+            if (fProgram == null || fProgram.isEmpty()) {
                 return;
             }
-            this.restUtil.update(PropertiesModel.getConfig(Keyword.Url.Program.PUT_FILE_PROGRAM),
+            if(this.restUtil.update(PropertiesModel.getConfig(Keyword.Url.Program.PUT_FILE_PROGRAM),
                     RequestParam.builder().addParam(Keyword.ID, programId),
                     JsonBodyAPI.builder()
-                            .put(Keyword.ID, fileProgram.get(Keyword.ID)));
+                            .put(Keyword.ID, fProgram.get(Keyword.ID)))){
+                this.fileProgramID = fProgram.get(Keyword.ID); 
+            }
             refreshProgramVersions();
         });
         fProgrampMenu.addItemMenu("remove program", (e) -> {
@@ -87,12 +90,12 @@ public class ProgramEditPanel extends Panelupdate {
     }
 
     private void showFileProgram() {
-        if (programId == null) {
+        if (fileProgramID == null) {
             return;
         }
         Object name = this.fileProgramTable.getRowValue(0, Keyword.NAME);
         this.fileProgramPanel.clear();
-        this.fileProgramPanel.setFileInfo(null, null, null, programId, name.toString());
+        this.fileProgramPanel.setFileInfo(null, null, null, fileProgramID, name.toString());
         JOptionUtil.showObject(this.fileProgramPanel, "File viewer");
         refreshProgramVersions();
     }
