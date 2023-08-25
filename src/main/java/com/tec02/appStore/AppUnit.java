@@ -35,21 +35,17 @@ public class AppUnit extends Panelupdate {
             public void run() {
                 while (true) {
                     try {
-                        if (appProccess == null) {
-                            lb_icon.setBorder(null);
+                        if (lb_icon.getIcon() == null) {
+                            display();
+                        }
+                        if (appProccess != null && appProccess.isUpdateStatus()) {
+                            lb_icon.setBorder(new LineBorder(Color.YELLOW, 2, true));
+                        } else if (appProccess != null && appProccess.isWaitRemove()) {
+                            lb_icon.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
+                        } else if (appProccess != null && appProccess.isRuning()) {
+                            lb_icon.setBorder(new LineBorder(Color.GREEN, 2, true));
                         } else {
-                            if (lb_icon.getIcon() == null) {
-                                display();
-                            }
-                            if (appProccess.isUpdateStatus()) {
-                                lb_icon.setBorder(new LineBorder(Color.YELLOW, 2, true));
-                            } else if (appProccess.isWaitRemove()) {
-                                lb_icon.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
-                            } else if (appProccess.isRuning()) {
-                                lb_icon.setBorder(new LineBorder(Color.GREEN, 2, true));
-                            } else {
-                                lb_icon.setBorder(null);
-                            }
+                            lb_icon.setBorder(null);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -253,7 +249,7 @@ public class AppUnit extends Panelupdate {
     }
 
     public boolean containAppID(Object id) {
-        if (appProccess == null) {
+        if (appProccess == null || appProccess.getAppModel() == null) {
             return false;
         }
         return appProccess.getId().equals(id);

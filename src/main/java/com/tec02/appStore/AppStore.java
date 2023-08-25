@@ -87,7 +87,6 @@ public class AppStore extends Panelupdate {
                 try {
                     synchronized (lock) {
                         this.appManagement.checkUpdate(this.appPackage.getApps().values());
-                        this.storePanel.updateApp();
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -103,7 +102,7 @@ public class AppStore extends Panelupdate {
         this.threadUpdateUI = new Thread(() -> {
             while (true) {
                 try {
-                    this.storePanel.updateApp();
+                    this.storePanel.updateDisplay();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     this.loger.addLog("ERROR", "Show UI loop: %s", ex.getLocalizedMessage());

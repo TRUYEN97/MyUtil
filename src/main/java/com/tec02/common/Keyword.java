@@ -50,6 +50,7 @@ public final class Keyword {
     public static final class Url {
 
         public static final String LOGIN = "api.url.login";
+        public static final String IPS = "api.url.ips";
 
         public static final class Product {
 

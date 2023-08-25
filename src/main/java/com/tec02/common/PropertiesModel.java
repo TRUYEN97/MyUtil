@@ -4,6 +4,7 @@
  */
 package com.tec02.common;
 
+import com.tec02.communication.Communicate.Impl.Cmd.Cmd;
 import java.util.Properties;
 
 /**
@@ -14,6 +15,7 @@ public class PropertiesModel {
 
     private static volatile PropertiesModel instance;
     private final Properties properties;
+    private String serverIp;
 
     private PropertiesModel() throws Exception {
         properties = new Properties();
@@ -22,17 +24,35 @@ public class PropertiesModel {
 
     public final void init() throws Exception {
         properties.load(getClass().getResourceAsStream("/config.properties"));
+        Properties ipConfig = new Properties();
+        ipConfig.load(getClass().getResourceAsStream("/ip.properties"));
+        String[] ips = ipConfig.getProperty(Keyword.Url.IPS).split(",");
+        Cmd cmd = new Cmd();
+        for (String ip : ips) {
+            ip = ip.trim();
+            cmd.sendCommand(String.format("ping %s -n 2", ip));
+            String rp = cmd.readAll();
+            if (rp.contains("TTL=")) {
+                serverIp = ip;
+                break;
+            }
+        }
+        serverIp = serverIp.trim();
     }
-    
+
+    public String getServerIp() {
+        return serverIp;
+    }
+
     public static boolean getBoolean(String key, boolean defaultVal) {
         String str = getConfig(key);
-        if(str == null){
+        if (str == null) {
             return defaultVal;
-        }else{
+        } else {
             return Boolean.parseBoolean(str);
         }
     }
-    
+
     public static PropertiesModel getInstance() throws Exception {
         PropertiesModel ins = PropertiesModel.instance;
         if (ins == null) {
@@ -45,16 +65,16 @@ public class PropertiesModel {
         }
         return ins;
     }
-    
+
     public static int getInteger(String key, int defaultValue) {
         String str = getConfig(key);
-        if(str == null || !str.trim().matches("^-?[0-9]+$")){
+        if (str == null || !str.trim().matches("^-?[0-9]+$")) {
             return defaultValue;
-        }else{
+        } else {
             return Integer.valueOf(str);
         }
     }
-    
+
     public static String getConfig(String key) {
         try {
             return getInstance().getProperty(key);
@@ -63,7 +83,7 @@ public class PropertiesModel {
             return null;
         }
     }
-    
+
     public static String getConfig(String key, String defaultValue) {
         try {
             return getInstance().getProperty(key, defaultValue);
@@ -76,13 +96,21 @@ public class PropertiesModel {
     public Properties getProperties() {
         return properties;
     }
-    
-    public String getProperty(String key){
-        return properties.getProperty(key);
+
+    public String getProperty(String key) {
+        String str = properties.getProperty(key);
+        if (str.contains("(ip)")) {
+            str = str.replaceAll("\\(ip\\)", serverIp);
+        }
+        return str;
     }
-    
-    public String getProperty(String key, String defaultVal){
-        return properties.getProperty(key, defaultVal);
+
+    public String getProperty(String key, String defaultVal) {
+        String str = properties.getProperty(key, defaultVal);
+        if (str.contains("(ip)")) {
+            str = str.replaceAll("\\(ip\\)", serverIp);
+        }
+        return str;
     }
 
 }

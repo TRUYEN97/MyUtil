@@ -71,7 +71,7 @@ public class StorePanel extends Panelupdate {
         this.validate();
     }
 
-    public void updateApp() {
+    public void updateDisplay() {
         AppUnit appUnit;
         var appProccesses = this.appManagement.getAppProccesses();
         if (appProccesses.isHasChange()) {
@@ -85,6 +85,15 @@ public class StorePanel extends Panelupdate {
                 }
             }
         }
+    }
+
+    private AppUnit findAppUnit(AppProcess app) {
+        for (AppUnit appUnit : appUnits) {
+            if (appUnit.containAppID(app.getId())) {
+                return appUnit;
+            }
+        }
+        return null;
     }
 
     private AppUnit findAppUnitFree() {
