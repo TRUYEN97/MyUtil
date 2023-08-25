@@ -5,7 +5,11 @@
 package com.tec02.common;
 
 import com.tec02.communication.Communicate.Impl.Cmd.Cmd;
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.file.Files;
 import java.util.Properties;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -24,20 +28,29 @@ public class PropertiesModel {
 
     public final void init() throws Exception {
         properties.load(getClass().getResourceAsStream("/config.properties"));
-        Properties ipConfig = new Properties();
-        ipConfig.load(getClass().getResourceAsStream("/ip.properties"));
-        String[] ips = ipConfig.getProperty(Keyword.Url.IPS).split(",");
-        Cmd cmd = new Cmd();
-        for (String ip : ips) {
-            ip = ip.trim();
-            cmd.sendCommand(String.format("ping %s -n 2", ip));
-            String rp = cmd.readAll();
-            if (rp.contains("TTL=")) {
-                serverIp = ip;
-                break;
+        File config = new File("config/ip.txt");
+        if (!config.exists() || !(serverIp = Files.readString(config.toPath())).matches("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.|$)){4}$")) {
+            Properties ipConfig = new Properties();
+            ipConfig.load(getClass().getResourceAsStream("/ip.properties"));
+            String[] ips = ipConfig.getProperty(Keyword.Url.IPS).split(",");
+            Cmd cmd = new Cmd();
+            for (String ip : ips) {
+                ip = ip.trim();
+                cmd.sendCommand(String.format("ping %s -n 2", ip));
+                String rp = cmd.readAll();
+                if (rp.contains("TTL=")) {
+                    serverIp = ip;
+                    break;
+                }
+            }
+            if (!config.exists()) {
+                config.getParentFile().mkdirs();
+                config.createNewFile();
+            }
+            try(FileWriter fileWriter = new FileWriter(config)){
+                fileWriter.write(serverIp);
             }
         }
-        serverIp = serverIp.trim();
     }
 
     public String getServerIp() {
