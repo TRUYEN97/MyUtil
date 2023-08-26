@@ -39,7 +39,7 @@ public class AppProccessManagemant {
                         str = str.trim();
                         if (str.equalsIgnoreCase("show")) {
                             view.display(null);
-                        } else if (str.matches("^name:[a-z_A-Z|0-9|\\_|\\-]+$")) {
+                        } else if (str.matches("^name:.+")) {
                             String name = str.trim().split(":")[1];
                             handler.send("welcome ".concat(name));
                             return name;

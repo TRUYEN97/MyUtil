@@ -4,8 +4,6 @@
  */
 package com.tec02.common.API;
 
-import com.tec02.common.API.RestAPI;
-import com.tec02.common.API.RestAPI;
 
 
 /**
