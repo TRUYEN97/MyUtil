@@ -191,8 +191,18 @@ public class AppUnit extends Panelupdate {
         if (appNotAvailable()) {
             return;
         }
+        StringBuilder tooltipText = new StringBuilder("<html>");
         this.pnAppVid.setBackground(bgColor.darker());
-        this.setToolTipText(appProccess.getAppName());
+        if (appProccess != null && appProccess.isUpdateStatus()) {
+            tooltipText.append("<center><p style=\"color: yellow;\">Update</p></center>");
+        } else if (appProccess != null && appProccess.isWaitRemove()) {
+            tooltipText.append("<center><p style=\"color: gray;\">Removed</p></center>");
+        } else if (appProccess != null && appProccess.isRuning()) {
+            tooltipText.append("<center><p style=\"color: green;\">Running</p></center>");
+        }
+        tooltipText.append(appProccess.getAppName());
+        tooltipText.append("</html>");
+        this.setToolTipText(tooltipText.toString());
     }//GEN-LAST:event_formMouseEntered
 
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked

@@ -45,6 +45,10 @@ public class Cmd extends AbsCommunicate implements ISender, IReadStream {
             return false;
         }
     }
+    
+    public int waitFor() throws InterruptedException{
+        return this.process.waitFor();
+    }
 
     public void destroy() {
         try {

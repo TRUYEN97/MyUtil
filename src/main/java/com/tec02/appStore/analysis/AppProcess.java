@@ -12,8 +12,10 @@ import com.tec02.common.Keyword;
 import com.tec02.communication.Communicate.Impl.Cmd.Cmd;
 import com.tec02.common.PropertiesModel;
 import com.tec02.communication.socket.Unicast.Server.HandleManagement;
+import com.tec02.user32.User32Util;
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JPasswordField;
 import javax.swing.Timer;
@@ -35,9 +37,11 @@ public class AppProcess {
     private boolean updateStatus;
     private boolean removedStatus;
     private boolean needReset;
+    private User32Util user32Util;
 
     public AppProcess(HandleManagement handleManagement) {
         this.handleManagement = handleManagement;
+        this.user32Util = new User32Util();
         this.appConsole = new AppConsole();
         this.dir = PropertiesModel.getConfig(Keyword.Store.LOCAL_APP);
         this.cmd = new Cmd();
@@ -130,24 +134,34 @@ public class AppProcess {
         } else if (thread != null && thread.isAlive()) {
             return true;
         }
-        if (checkWithCmd(String.format("tasklist.exe /nh /FI \"WINDOWTITLE eq %s\"",
-                this.appModel.getName()))) {
-            return true;
-        }
-        return this.runFile != null && checkWithCmd(String.format("tasklist.exe /nh /FI \"IMAGENAME eq %s\"",
-                this.runFile.getFileName()));
+        return !getPID().isEmpty();
     }
 
     public boolean stop() {
         if (appModel == null) {
             return false;
         }
-        if (killWithCmd(String.format("taskkill.exe /FI \"WINDOWTITLE eq %s\"",
-                this.appModel.getName()))) {
-            return true;
+        return killProcess() || killProcess();
+    }
+
+    private boolean killProcess() {
+        List<Integer> pids = getPID();
+        for (Integer pid : pids) {
+            user32Util.killProcessByPID(pid);
         }
-        return this.runFile != null && killWithCmd(String.format("taskkill.exe /FI \"IMAGENAME eq %s\"",
-                this.runFile.getFileName()));
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException ex) {
+        }
+        return !isRuning();
+    }
+
+    private List<Integer> getPID() {
+        List<Integer> pids = user32Util.findProcess(this.appModel.getName());
+        if (pids.isEmpty()) {
+            pids = user32Util.findProcess(String.format("GDI+ Window (%s)",  this.runFile.getFileName()));
+        }
+        return pids;
     }
 
     public synchronized void runApp() {
@@ -180,7 +194,10 @@ public class AppProcess {
                 return;
             }
             this.needReset = false;
-            cmd.readAll();
+            try {
+                cmd.waitFor();
+            } catch (InterruptedException ex) {
+            }
         });
         thread.start();
     }
@@ -242,24 +259,6 @@ public class AppProcess {
             return handler.send(mess);
         }
         return false;
-    }
-
-    private boolean checkWithCmd(String command) {
-        Cmd cmdChecker = new Cmd();
-        if (!cmdChecker.sendCommand(command)) {
-            return false;
-        }
-        String response = cmdChecker.readAll();
-        return response != null && !response.contains("INFO: No tasks are running which match the specified criteria.");
-    }
-
-    private boolean killWithCmd(String command) {
-        Cmd cmdKiller = new Cmd();
-        if (!cmdKiller.sendCommand(command)) {
-            return false;
-        }
-        String response = cmdKiller.readAll();
-        return response != null && response.contains("SUCCESS: Sent termination signal to the process with PID");
     }
 
     public boolean isAlwaysUpdate() {

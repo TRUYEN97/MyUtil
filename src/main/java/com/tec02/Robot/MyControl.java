@@ -4,7 +4,8 @@
  */
 package com.tec02.Robot;
 
-import Robot.W32API;
+import com.sun.jna.platform.win32.WinDef;
+import com.tec02.user32.User32;
 import java.awt.event.KeyEvent;
 
 /**
@@ -14,28 +15,26 @@ import java.awt.event.KeyEvent;
 public class MyControl {
     
     private final MyRobot myRobot;
+    private final User32 user32;
     
     public MyControl() {
         this.myRobot = new MyRobot();
+        this.user32 = User32.INSTANCE;
     }
     
-    public W32API.HWND findWindows(String Tile) {
-        return User32.INSTANCE.FindWindow(0, Tile);
-    }
-    
-    public boolean showWindows(W32API.HWND hwnd) {
+    public boolean showWindows(WinDef.HWND hwnd) {
         if (hwnd == null) {
             return false;
         }
-        return User32.INSTANCE.ShowWindow(hwnd, 9)
-                && User32.INSTANCE.SetForegroundWindow(hwnd);
+        return user32.ShowWindow(hwnd, 9)
+                && user32.SetForegroundWindow(hwnd);
     }
     
     public boolean showAndMoveMouse(String title, int x, int y) {
         if (title == null || x < 0 || y < 0) {
             return false;
         }
-        User32.HWND thisWindows = findWindows(title);
+        WinDef.HWND thisWindows = user32.FindWindow(0, title);
         if (!showWindows(thisWindows)) {
             return false;
         }
@@ -47,9 +46,9 @@ public class MyControl {
         this.myRobot.sendMessager(mess);
     }
     
-    public boolean moveMouseOnWindow(W32API.HWND hwnd, int x, int y) {
+    public boolean moveMouseOnWindow(WinDef.HWND hwnd, int x, int y) {
         int[] location = new int[4];
-        if (!User32.INSTANCE.GetWindowRect(hwnd, location)) {
+        if (!user32.GetWindowRect(hwnd, location)) {
             return false;
         }
         this.myRobot.moveMouse(location[0] + x, location[1] + y);
@@ -68,7 +67,7 @@ public class MyControl {
         this.myRobot.click();
     }
 
-    public boolean closeWindows(W32API.HWND hwnd) {
-        return User32.INSTANCE.CloseWindow(hwnd);
+    public boolean closeWindows(WinDef.HWND hwnd) {
+        return user32.CloseWindow(hwnd);
     }
 }
