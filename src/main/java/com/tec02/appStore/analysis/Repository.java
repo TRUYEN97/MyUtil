@@ -32,21 +32,20 @@ public class Repository {
     }
 
     public synchronized List<AppModel> setData(Collection<? extends AppModel> newAppModels) {
-        if (newAppModels == null) {
-            return null;
-        }
         Map<Object, AppUpdateModel> temps = new HashMap<>();
-        for (AppModel model : newAppModels) {
-            AppUpdateModel newAppModel = new AppUpdateModel();
-            newAppModel.setId(model.getId());
-            newAppModel.setName(model.getName());
-            newAppModel.setPassword(model.getPassword());
-            newAppModel.setAlwaysRun(model.isAlwaysRun());
-            newAppModel.setAlwaysUpdate(model.isAlwaysUpdate());
-            newAppModel.setDescription(model.getDescription());
-            newAppModel.setFileProgram(model.getFileProgram());
-            newAppModel.setFiles(model.getFiles());
-            temps.put(model.getId(), newAppModel);
+        if (newAppModels != null) {
+            for (AppModel model : newAppModels) {
+                AppUpdateModel newAppModel = new AppUpdateModel();
+                newAppModel.setId(model.getId());
+                newAppModel.setName(model.getName());
+                newAppModel.setPassword(model.getPassword());
+                newAppModel.setAlwaysRun(model.isAlwaysRun());
+                newAppModel.setAlwaysUpdate(model.isAlwaysUpdate());
+                newAppModel.setDescription(model.getDescription());
+                newAppModel.setFileProgram(model.getFileProgram());
+                newAppModel.setFiles(model.getFiles());
+                temps.put(model.getId(), newAppModel);
+            }
         }
         Object id;
         AppUpdateModel newApp;
@@ -75,10 +74,8 @@ public class Repository {
     }
 
     public List<AppModel> setJsonArrayData(JSONArray object) {
-        if (object == null) {
-            return null;
-        }
-        return setData(MyObjectMapper.convertToList(object, AppModel.class));
+        List<AppModel> apps = object == null ? null : MyObjectMapper.convertToList(object, AppModel.class);
+        return setData(apps);
     }
 
     public Map<Object, AppUpdateModel> getAppModels() {

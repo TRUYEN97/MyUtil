@@ -194,7 +194,7 @@ public class AppUnit extends Panelupdate {
         StringBuilder tooltipText = new StringBuilder("<html>");
         this.pnAppVid.setBackground(bgColor.darker());
         if (appProccess != null && appProccess.isUpdateStatus()) {
-            tooltipText.append("<center><p style=\"color: yellow;\">Update</p></center>");
+            tooltipText.append("<center><p style=\"color: red;\">Update</p></center>");
         } else if (appProccess != null && appProccess.isWaitRemove()) {
             tooltipText.append("<center><p style=\"color: gray;\">Removed</p></center>");
         } else if (appProccess != null && appProccess.isRuning()) {

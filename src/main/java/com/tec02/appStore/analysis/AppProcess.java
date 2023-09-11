@@ -159,7 +159,7 @@ public class AppProcess {
     private List<Integer> getPID() {
         List<Integer> pids = user32Util.findProcess(this.appModel.getName());
         if (pids.isEmpty()) {
-            pids = user32Util.findProcess(String.format("GDI+ Window (%s)",  this.runFile.getFileName()));
+            pids = user32Util.findProcess(String.format("GDI+ Window (%s)", this.runFile.getFileName()));
         }
         return pids;
     }
