@@ -5,10 +5,10 @@
 package com.tec02.gui.frameGui;
 
 import com.alibaba.fastjson.JSONObject;
-import com.tec02.common.API.JsonBodyAPI;
-import com.tec02.common.API.RequestParam;
-import com.tec02.common.API.Response;
-import com.tec02.common.API.RestAPI;
+import com.tec02.API.JsonBodyAPI;
+import com.tec02.API.RequestParam;
+import com.tec02.API.Response;
+import com.tec02.API.RestAPI;
 import com.tec02.gui.frameGui.Component.MyTable;
 import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;

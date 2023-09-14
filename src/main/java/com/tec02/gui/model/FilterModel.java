@@ -4,7 +4,7 @@
  */
 package com.tec02.gui.model;
 
-import com.tec02.common.API.RestAPI;
+import com.tec02.API.RestAPI;
 import com.tec02.gui.panelGui.FilterUnit;
 import java.util.ArrayList;
 import java.util.Collection;

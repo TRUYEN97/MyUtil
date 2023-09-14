@@ -9,7 +9,7 @@ import com.tec02.appStore.model.AppModel;
 import com.tec02.appStore.model.AppUpdateModel;
 import com.tec02.appStore.model.FileModel;
 import com.tec02.common.Keyword;
-import com.tec02.common.API.RestAPI;
+import com.tec02.API.RestAPI;
 import com.tec02.common.JOptionUtil;
 import com.tec02.common.Util;
 import com.tec02.common.PropertiesModel;
