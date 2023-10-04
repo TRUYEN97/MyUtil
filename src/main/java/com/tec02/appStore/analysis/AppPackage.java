@@ -10,6 +10,7 @@ import com.tec02.appStore.model.AppUpdateModel;
 import com.tec02.appStore.model.FileModel;
 import com.tec02.common.Keyword;
 import com.tec02.API.RequestParam;
+import com.tec02.API.Response;
 import com.tec02.API.RestAPI;
 import com.tec02.common.RestUtil;
 import com.tec02.common.Util;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -40,8 +42,18 @@ public class AppPackage {
     }
 
     public void checkAppUpdate(RequestParam param) {
-        removeAppFiles(this.appBackUp.setJsonArrayData(this.restUtil.getList(
-                PropertiesModel.getConfig(Keyword.Url.Pc.GET_APP_INFO), param)));
+        String url = PropertiesModel.getConfig(Keyword.Url.Pc.GET_APP_INFO);
+        if (url == null) {
+            JOptionPane.showMessageDialog(null, "url == null");
+            return;
+        }
+        Response response = this.restUtil.getApi().sendGet(url, param);
+        if (response.isFailStatusAndShowMessage(false)) {
+            if (response.getCode() != 200) {
+                return;
+            }
+        }
+        removeAppFiles(this.appBackUp.setJsonArrayData(response.getData()));
         if (this.appBackUp.isEmpty()) {
             this.appBackUp.clear(new File(backupDir));
         }
@@ -69,7 +81,7 @@ public class AppPackage {
             var files = app.getFiles();
             if (files != null && !files.isEmpty()) {
                 for (FileModel fileModel : files.values()) {
-                    checkUpdate(fileModel, 
+                    checkUpdate(fileModel,
                             PropertiesModel.getConfig(Keyword.Url.File.GET_LAST_VERSION_DOWNLOAD));
                 }
             }

@@ -10,7 +10,6 @@ import com.tec02.common.Keyword;
 import com.tec02.API.RestAPI;
 import com.tec02.gui.Panelupdate;
 import com.tec02.common.PropertiesModel;
-import javax.swing.Timer;
 
 /**
  *

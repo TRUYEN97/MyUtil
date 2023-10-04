@@ -67,7 +67,8 @@ public class AppUnit extends Panelupdate {
             }
         });
         this.popupMenu.addItemMenu("Show description", (e) -> {
-            JOptionUtil.showObject(appProccess.getDescription(), appProccess.getAppName());
+            JOptionUtil.showObject(appProccess.getDescription(), 
+                    String.format("Description - %s", appProccess.getAppName()));
         });
 
     }
