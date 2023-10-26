@@ -89,15 +89,15 @@ public class AppPackage {
         }
     }
 
-    private void checkUpdate(FileModel fileProgram, String url) throws HeadlessException {
+    private void checkUpdate(FileModel fileModel, String url) throws HeadlessException {
         File file;
-        file = fileProgram.getLocalPath(backupDir).toFile();
+        file = fileModel.getLocalPath(backupDir).toFile();
         if (!file.exists()
                 || !Util.md5File(file.getPath())
-                        .equals(fileProgram.getMd5())) {
+                        .equals(fileModel.getMd5())) {
             if (this.restUtil.downloadFileSaveByPathOnServer(url,
                     RequestParam.builder().addParam("id",
-                            fileProgram.getId()), file.getPath())) {
+                            fileModel.getId()), file.getPath())) {
                 this.loger.addLog("Download", "%s -> ok", file.getPath());
             } else {
                 this.loger.addLog("Download", "%s -> failed", file.getPath());

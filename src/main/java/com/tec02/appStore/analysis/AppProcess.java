@@ -188,7 +188,7 @@ public class AppProcess {
             } else {
                 commandRun = "";
             }
-            if (!cmd.insertCommand(String.format("cd %s && start \"%s\" /MIN %s %s %s %s",
+            if (!cmd.insertCommand(String.format("cd \"%s\" && start \"%s\" /MIN %s \"%s\" \"%s\" \"%s\"",
                     runFile.getParent(), this.appModel.getName(), commandRun,
                     fileName, version, this.appModel.getName()))) {
                 return;
