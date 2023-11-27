@@ -10,15 +10,17 @@ import com.tec02.API.JsonBodyAPI;
 import com.tec02.common.Keyword;
 import com.tec02.API.RequestParam;
 import com.tec02.API.RestAPI;
+import com.tec02.Jmodel.Component.MyTable;
+import com.tec02.Jmodel.Component.PopupMenu;
+import com.tec02.Jmodel.treeFile.TreeFolder;
 import com.tec02.common.RestUtil;
 import com.tec02.gui.Panelupdate;
-import com.tec02.gui.frameGui.Component.MyTable;
-import com.tec02.gui.frameGui.Component.PopupMenu;
-import com.tec02.gui.frameGui.treeFile.TreeFolder;
 import com.tec02.common.PropertiesModel;
 import java.awt.HeadlessException;
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
@@ -33,6 +35,7 @@ public class FileUpdatePanel extends Panelupdate {
     private final MyTable myTable;
     private final TreeFolder treeFolder;
     private final FileUploadPn fileUploadPn;
+    private final Collection<String> columns;
     private Object fgroupId;
     private Object fileID;
 
@@ -47,6 +50,7 @@ public class FileUpdatePanel extends Panelupdate {
         this.myTable = new MyTable(tbShowVersions);
         this.treeFolder = new TreeFolder(tree, false);
         this.fileUploadPn = new FileUploadPn();
+        this.columns = new ArrayList<>();
         this.pnFileUpload.add(this.fileUploadPn);
         this.fileUploadPn.setUploadAction((input) -> {
             if (!input.hasChanged()) {
@@ -258,12 +262,20 @@ public class FileUpdatePanel extends Panelupdate {
         this.fileUploadPn.setFileName(path.getFileName() == null ? null : path.getFileName().toString());
     }
 
+    public void addColumn(Collection<String> columns) {
+        if (columns == null) {
+            this.columns.clear();
+            return;
+        }
+        this.columns.addAll(columns);
+    }
+
     private void getFileVersion(Object id) throws HeadlessException {
         List<JSONObject> list = this.restUtil.getList(
                 PropertiesModel.getConfig(Keyword.Url.File.GET_VERSION),
                 RequestParam.builder()
                         .addParam(Keyword.ID, id));
-        this.myTable.setDatas(list);
+        this.myTable.setDatas(list, this.columns.isEmpty()? null: this.columns);
         if (list != null && !list.isEmpty()) {
             showVersionInfo(list.get(0));
         }

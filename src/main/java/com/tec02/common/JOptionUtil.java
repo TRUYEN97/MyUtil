@@ -4,8 +4,8 @@
  */
 package com.tec02.common;
 
-import com.tec02.gui.IAction;
-import com.tec02.gui.frameGui.Component.MyTable;
+import com.tec02.Jmodel.Component.MyTable;
+import com.tec02.Jmodel.IAction;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

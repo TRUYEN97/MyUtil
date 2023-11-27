@@ -9,7 +9,7 @@ import com.tec02.API.JsonBodyAPI;
 import com.tec02.API.RequestParam;
 import com.tec02.API.Response;
 import com.tec02.API.RestAPI;
-import com.tec02.gui.frameGui.Component.MyTable;
+import com.tec02.Jmodel.Component.MyTable;
 import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
 import java.util.List;

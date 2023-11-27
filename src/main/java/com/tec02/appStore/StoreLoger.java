@@ -7,7 +7,7 @@ package com.tec02.appStore;
 import com.tec02.Time.TimeBase;
 import com.tec02.common.Keyword;
 import com.tec02.common.PropertiesModel;
-import com.tec02.myloger.MyLoger;
+import com.tec02.mylogger.MyLogger;
 
 /**
  *
@@ -15,12 +15,12 @@ import com.tec02.myloger.MyLoger;
  */
 public class StoreLoger {
     
-    private final MyLoger loger;
+    private final MyLogger loger;
     private final String dirLog;
     private final TimeBase timeBase;
 
     public StoreLoger() {
-        this.loger = new MyLoger();
+        this.loger = new MyLogger();
         this.loger.setSaveMemory(true);
         this.dirLog = PropertiesModel.getConfig(Keyword.Store.LOG_DIR);
         this.timeBase = new TimeBase();

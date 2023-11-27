@@ -8,7 +8,7 @@ import com.tec02.API.RestAPI;
 import com.tec02.gui.guiInterface.IfileterBuilder;
 import com.tec02.gui.panelGui.FilterUnit;
 import com.tec02.gui.panelGui.MyFilter;
-import com.tec02.gui.IAction;
+import com.tec02.Jmodel.IAction;
 import com.tec02.gui.PopupMenuFilterAction;
 
 /**

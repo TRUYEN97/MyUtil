@@ -4,10 +4,10 @@
  */
 package com.tec02.appStore;
 
+import com.tec02.Jmodel.Component.PopupMenu;
 import com.tec02.appStore.analysis.AppProcess;
 import com.tec02.common.JOptionUtil;
 import com.tec02.gui.Panelupdate;
-import com.tec02.gui.frameGui.Component.PopupMenu;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;

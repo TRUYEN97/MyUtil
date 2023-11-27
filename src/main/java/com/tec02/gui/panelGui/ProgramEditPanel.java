@@ -6,14 +6,15 @@ package com.tec02.gui.panelGui;
 
 import com.tec02.API.JsonBodyAPI;
 import com.tec02.API.RequestParam;
+import com.tec02.API.Response;
 import com.tec02.API.RestAPI;
+import com.tec02.Jmodel.Component.MyTable;
+import com.tec02.Jmodel.Component.PopupMenu;
 import com.tec02.common.RestUtil;
 import com.tec02.common.JOptionUtil;
 import com.tec02.common.Keyword;
 import com.tec02.common.PropertiesModel;
 import com.tec02.gui.Panelupdate;
-import com.tec02.gui.frameGui.Component.MyTable;
-import com.tec02.gui.frameGui.Component.PopupMenu;
 import java.awt.HeadlessException;
 import java.util.ArrayList;
 import java.util.List;
@@ -148,6 +149,13 @@ public class ProgramEditPanel extends Panelupdate {
 
     public void setProgramId(Object programId) {
         this.programId = programId;
+        Response response = this.restUtil.getApi().sendGet(PropertiesModel.getConfig(Keyword.Url.Program.GET_FILE_PROGRAM_ID), 
+                RequestParam.builder().addParam(Keyword.ID, programId));
+        if(response.isFailStatusAndShowMessage(false)){
+            this.fileProgramID = null;
+        }else{
+            this.fileProgramID = response.getData();
+        }
         refreshProgramVersions();
         refreshPcs();
         refeshFgroups();

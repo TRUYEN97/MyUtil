@@ -9,16 +9,19 @@ import com.tec02.API.JsonBodyAPI;
 import com.tec02.common.Keyword;
 import com.tec02.API.RequestParam;
 import com.tec02.API.RestAPI;
+import com.tec02.Jmodel.Component.MyTable;
+import com.tec02.Jmodel.Component.PopupMenu;
 import com.tec02.common.RestUtil;
-import com.tec02.gui.IAction;
+import com.tec02.Jmodel.IAction;
 import com.tec02.gui.Panelupdate;
-import com.tec02.gui.frameGui.Component.MyTable;
-import com.tec02.gui.frameGui.Component.PopupMenu;
 import com.tec02.common.PropertiesModel;
 import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JOptionPane;
 
 /**
@@ -30,6 +33,7 @@ public class TableAndLocation extends Panelupdate {
     private final LocationFilter locationFilter;
     private final MyTable myTable;
     private final RestUtil restUtil;
+    private final Set<String> coloumns;
     private String urlGet;
     private String urlPost;
     private String urlDelete;
@@ -45,12 +49,13 @@ public class TableAndLocation extends Panelupdate {
         this.myTable = new MyTable(tbShow);
         this.restUtil = new RestUtil(aPI);
         this.locationFilter = new LocationFilter(
-                aPI
-                , PropertiesModel.getConfig(Keyword.Url.Product.GET)
-                , PropertiesModel.getConfig(Keyword.Url.Station.GET)
-                , PropertiesModel.getConfig(Keyword.Url.Line.GET));
+                aPI,
+                 PropertiesModel.getConfig(Keyword.Url.Product.GET),
+                 PropertiesModel.getConfig(Keyword.Url.Station.GET),
+                 PropertiesModel.getConfig(Keyword.Url.Line.GET));
         this.pnFilter.add(this.locationFilter);
         this.locationFilter.update();
+        this.coloumns = new HashSet<>();
     }
 
     @Override
@@ -59,6 +64,14 @@ public class TableAndLocation extends Panelupdate {
         this.locationFilter.update();
         this.locationFilter.refresh();
         find();
+    }
+
+    public void addColoumn(Collection<String> coloumns) {
+        if (coloumns == null) {
+            this.coloumns.clear();
+            return;
+        }
+        this.coloumns.addAll(coloumns);
     }
 
     public PopupMenu getSelectedMenu() {
@@ -127,7 +140,11 @@ public class TableAndLocation extends Panelupdate {
             return;
         }
         if (myTable != null) {
-            myTable.initTable(items.get(0).keySet());
+            if (this.coloumns.isEmpty()) {
+                myTable.initTable(items.get(0).keySet());
+            } else {
+                myTable.initTable(this.coloumns);
+            }
             for (var item : items) {
                 myTable.addRow(item);
             }
@@ -144,11 +161,11 @@ public class TableAndLocation extends Panelupdate {
     }
 
     public void uploadFile(JsonBodyAPI bodyAPI, String path) {
-        this.restUtil.uploadFile(urlPost, 
+        this.restUtil.uploadFile(urlPost,
                 new RequestParam()
-                .addParam("pName", getProductSelection())
-                .addParam("sName", getStationSelection())
-                .addParam("lName", getLineSelection()),
+                        .addParam("pName", getProductSelection())
+                        .addParam("sName", getStationSelection())
+                        .addParam("lName", getLineSelection()),
                 bodyAPI, path);
         this.getList(null);
     }
@@ -300,7 +317,7 @@ public class TableAndLocation extends Panelupdate {
     }//GEN-LAST:event_btFindActionPerformed
 
     private void txtSearchKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER){
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             find();
         }
     }//GEN-LAST:event_txtSearchKeyPressed
@@ -325,7 +342,7 @@ public class TableAndLocation extends Panelupdate {
     public Object getTableSelectedValue(String columnName) {
         return this.myTable.getRowSelectedValue(columnName);
     }
-    
+
     public <T> T getTableSelectedValueT(String columnName) {
         return this.myTable.getRowSelectedValue(columnName);
     }

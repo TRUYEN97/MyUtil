@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
-import com.tec02.gui.IAction;
+import com.tec02.Jmodel.IAction;
 import com.tec02.gui.PopupMenuFilterAction;
 
 /**

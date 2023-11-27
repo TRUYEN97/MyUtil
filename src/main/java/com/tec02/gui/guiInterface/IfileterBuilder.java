@@ -4,7 +4,7 @@
  */
 package com.tec02.gui.guiInterface;
 
-import com.tec02.gui.IAction;
+import com.tec02.Jmodel.IAction;
 import com.tec02.API.RestAPI;
 import com.tec02.gui.PopupMenuFilterAction;
 import com.tec02.gui.panelGui.FilterUnit;

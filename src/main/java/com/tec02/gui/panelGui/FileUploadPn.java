@@ -4,7 +4,7 @@
  */
 package com.tec02.gui.panelGui;
 
-import com.tec02.gui.IAction;
+import com.tec02.Jmodel.IAction;
 import com.tec02.gui.Panelupdate;
 import com.tec02.gui.frameGui.Component.MyChooser;
 import java.io.File;

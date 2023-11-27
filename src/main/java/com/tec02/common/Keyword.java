@@ -112,6 +112,7 @@ public final class Keyword {
             public static final String GET_PCS = "api.url.program.get.pc";
             public static final String GET_PROGRAMS = "api.url.program.get.fileprograms";
             public static final String GET_FILE_PROGRAM_VSERSION = "api.url.program.get.fileprogram.version";
+            public static final String GET_FILE_PROGRAM_ID = "api.url.program.get.fileprogram.id";
             public static final String GET = "api.url.program.get";
             public static final String GET_LIST = "api.url.program.getlist";
             public static final String POST = "api.url.program.post";

@@ -6,7 +6,7 @@ package com.tec02.gui.panelGui;
 
 import com.tec02.gui.Panelupdate;
 import java.util.Collection;
-import com.tec02.gui.IAction;
+import com.tec02.Jmodel.IAction;
 import com.tec02.gui.PopupMenuFilterAction;
 import java.util.ArrayList;
 import java.util.List;
