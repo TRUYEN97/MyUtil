@@ -8,7 +8,7 @@ import com.tec02.appStore.analysis.AppPackage;
 import com.tec02.appStore.analysis.AppManagement;
 import com.tec02.API.JsonBodyAPI;
 import com.tec02.common.Keyword;
-import com.tec02.common.ProgramInformation;
+import com.tec02.common.PcInformation;
 import com.tec02.API.RequestParam;
 import com.tec02.API.RestAPI;
 import com.tec02.gui.Panelupdate;
@@ -29,7 +29,7 @@ public class AppStore extends Panelupdate {
     private final AppPackage appPackage;
     private final AppManagement appManagement;
     private final RestUtil restUtil;
-    private final ProgramInformation pcInfo;
+    private final PcInformation pcInfo;
     private final Object lock;
     private final Thread threadUpdateBackup;
     private final Thread threadUpdateApp;
@@ -47,7 +47,7 @@ public class AppStore extends Panelupdate {
     public AppStore(RestAPI api, AbsDisplayAble view) throws Exception {
         initComponents();
         api.setTextComponent(txtShowMessage);
-        this.pcInfo = ProgramInformation.getInstance();
+        this.pcInfo = PcInformation.getInstance();
         this.restUtil = new RestUtil(api);
         this.loger = new StoreLoger();
         this.appPackage = new AppPackage(api, loger);
@@ -144,7 +144,7 @@ public class AppStore extends Panelupdate {
     private void checkAppUpdate() {
         updatePcInfo();
         this.appPackage.checkAppUpdate(RequestParam.builder().addParam(Keyword.PC_NAME,
-                ProgramInformation.getInstance().getPcName()));
+                PcInformation.getInstance().getPcName()));
     }
 
     /**
