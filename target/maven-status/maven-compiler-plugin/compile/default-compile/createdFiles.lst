@@ -35,6 +35,7 @@ com\tec02\gui\frameGui\ConfigGui.class
 com\tec02\gui\panelGui\LocationFilter$3.class
 com\tec02\appStore\StoreLoger.class
 com\tec02\gui\frameGui\LogView.class
+com\tec02\appStore\analysis\AppProcess$TaskListp.class
 com\tec02\common\Keyword$Url$Station.class
 com\tec02\gui\frameGui\ConfigGui$2.class
 com\tec02\common\PropertiesModel.class
@@ -56,6 +57,7 @@ com\tec02\appStore\model\AppUpdateModel.class
 com\tec02\gui\panelGui\LocationFilter$2.class
 com\tec02\gui\panelGui\FileUpdatePanel$1.class
 com\tec02\common\JOptionUtil.class
+com\tec02\appStore\analysis\AppProcess$Win32p.class
 com\tec02\gui\panelGui\FileUploadPn$1.class
 com\tec02\gui\panelGui\FilterUnit$1.class
 com\tec02\gui\frameGui\ConfigGui$3.class
