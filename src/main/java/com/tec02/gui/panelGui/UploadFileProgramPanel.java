@@ -4,7 +4,7 @@
  */
 package com.tec02.gui.panelGui;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.tec02.API.JsonBodyAPI;
 import com.tec02.common.Keyword;
 import com.tec02.API.RequestParam;

@@ -4,7 +4,7 @@
  */
 package com.tec02.appStore.analysis;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
 import com.tec02.appStore.StoreLoger;
 import com.tec02.appStore.model.AppModel;
 import com.tec02.appStore.model.AppUpdateModel;

@@ -52,7 +52,7 @@ public class AppStore extends Panelupdate {
         this.loger = new StoreLoger();
         this.appPackage = new AppPackage(api, loger);
         this.appManagement = new AppManagement(api, loger, view);
-        this.storePanel = new StorePanel(this.appManagement, 3, 3);
+        this.storePanel = new StorePanel(this.appManagement, 4, 4);
         this.pnStore.add(this.storePanel);
         this.storePanel.update();
         this.userInfo = new UserInfomation(api);
@@ -187,7 +187,7 @@ public class AppStore extends Panelupdate {
                         .addContainerGap()
                         .addComponent(jScrollPane1)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnStore, javax.swing.GroupLayout.DEFAULT_SIZE, 682, Short.MAX_VALUE)
+                .addComponent(pnStore, javax.swing.GroupLayout.DEFAULT_SIZE, 732, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -199,7 +199,7 @@ public class AppStore extends Panelupdate {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(pnUser, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

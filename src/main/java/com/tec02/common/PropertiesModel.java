@@ -27,7 +27,7 @@ public class PropertiesModel {
 
     public final void init() throws Exception {
         properties.load(getClass().getResourceAsStream("/config.properties"));
-        File config = new File("config/ip.txt");
+        File config = new File("./config/ip.txt");
         if (!config.exists() || !(serverIp = Files.readString(config.toPath()))
                 .matches("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.|$)){4}$")
                 || !ping(serverIp)) {
@@ -53,7 +53,7 @@ public class PropertiesModel {
 
     private boolean ping(String ip) {
         Cmd cmd = new Cmd();
-        cmd.sendCommand(String.format("ping %s -n 2", ip));
+        cmd.sendCommand(String.format("ping %s -n 1", ip));
         String rp = cmd.readAll();
         return rp.contains("TTL=");
     }

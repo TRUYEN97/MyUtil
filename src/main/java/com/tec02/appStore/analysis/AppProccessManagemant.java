@@ -8,7 +8,7 @@ import com.tec02.appStore.model.AppUpdateModel;
 import com.tec02.common.Keyword;
 import com.tec02.common.PropertiesModel;
 import com.tec02.communication.socket.Unicast.Server.HandleManagement;
-import com.tec02.communication.socket.Unicast.Server.Server;
+import com.tec02.communication.socket.Unicast.Server.SocketServer;
 import com.tec02.gui.frameGui.AbsDisplayAble;
 import java.io.IOException;
 import java.util.Collection;
@@ -23,12 +23,12 @@ public class AppProccessManagemant {
 
     private final Map<Object, AppProcess> appProccesses;
     private boolean hasChange;
-    private final Server server;
+    private final SocketServer server;
     private final HandleManagement handleManagement;
 
     public AppProccessManagemant(AbsDisplayAble view) throws Exception {
         this.appProccesses = new HashMap<>();
-        this.server = new Server(PropertiesModel.getInteger(Keyword.Socket.PORT, 5000),
+        this.server = new SocketServer(PropertiesModel.getInteger(Keyword.Socket.PORT, 5000),
                 (handler) -> {
                     handler.send("name");
                     try {
