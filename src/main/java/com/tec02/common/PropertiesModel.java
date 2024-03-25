@@ -41,6 +41,9 @@ public class PropertiesModel {
                     break;
                 }
             }
+            if(serverIp == null || serverIp.isBlank()){
+                throw new RuntimeException("Server ip not found!");
+            }
             if (!config.exists()) {
                 config.getParentFile().mkdirs();
                 config.createNewFile();
@@ -52,9 +55,13 @@ public class PropertiesModel {
     }
 
     private boolean ping(String ip) {
+        String command = String.format("ping %s -n 1", ip);
         Cmd cmd = new Cmd();
-        cmd.sendCommand(String.format("ping %s -n 1", ip));
+        System.out.println(command);
+        cmd.sendCommand(command);
         String rp = cmd.readAll();
+        System.out.println(rp);
+         System.out.println("-------------------------------");
         return rp.contains("TTL=");
     }
 
