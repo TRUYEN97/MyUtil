@@ -181,13 +181,12 @@ public class AppProcess {
             } else {
                 commandRun = "";
             }
+            this.needReset = false;
             Cmd cmd = new Cmd();
             if (!cmd.insertCommand(String.format("cd \"%s\" && start \"%s\" /MIN %s \"%s\" \"%s\" \"%s\"",
                     runFile.getParent(), getWindowTitle(), commandRun,
                     fileName, version, this.appModel.getName()))) {
-                return;
             }
-            this.needReset = false;
             cmd.waitFor();
         });
         thread.start();
