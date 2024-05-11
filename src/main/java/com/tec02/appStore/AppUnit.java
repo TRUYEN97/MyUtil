@@ -7,6 +7,7 @@ package com.tec02.appStore;
 import com.tec02.Jmodel.Component.PopupMenu;
 import com.tec02.appStore.analysis.AppProcess;
 import com.tec02.common.JOptionUtil;
+import com.tec02.communication.Communicate.Impl.Cmd.Cmd;
 import com.tec02.gui.Panelupdate;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -69,6 +70,12 @@ public class AppUnit extends Panelupdate {
         this.popupMenu.addItemMenu("Show description", (e) -> {
             JOptionUtil.showObject(appProccess.getDescription(), 
                     String.format("Description - %s", appProccess.getAppName()));
+        });
+        this.popupMenu.addItemMenu("Open file location", (e) -> {
+            Cmd cmd = new Cmd();
+            cmd.sendCommand("start explorer \"%s\"", appProccess.getFileLocation());
+            cmd.readAll();
+            cmd.waitFor();
         });
 
     }

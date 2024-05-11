@@ -61,9 +61,17 @@ public class AppStore extends Panelupdate {
         this.lock = new Object();
         this.threadUpdateBackup = new Thread(() -> {
             int time = PropertiesModel.getInteger(Keyword.Store.UPDATE_TIME, 10000);
+            boolean a = true;
             while (true) {
+                if (!a) {
+                    try {
+                        Thread.sleep(time);
+                    } catch (InterruptedException ex) {
+                    }
+                }
                 try {
                     synchronized (lock) {
+                        a = false;
                         checkAppUpdate();
                         lock.notifyAll();
                     }
@@ -71,10 +79,6 @@ public class AppStore extends Panelupdate {
                     ex.printStackTrace();
                     this.loger.addLog("ERROR", "backup loop: %s", ex.getLocalizedMessage());
                     JOptionUtil.showMessage(ex.getMessage());
-                }
-                try {
-                    Thread.sleep(time);
-                } catch (InterruptedException ex) {
                 }
             }
         });
@@ -94,7 +98,7 @@ public class AppStore extends Panelupdate {
                     JOptionUtil.showMessage(ex.getMessage());
                 }
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException ex) {
                 }
             }

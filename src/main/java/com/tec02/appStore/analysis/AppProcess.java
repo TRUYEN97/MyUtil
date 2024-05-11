@@ -162,6 +162,7 @@ public class AppProcess {
             return;
         }
         this.thread = new Thread(() -> {
+            this.needReset = false;
             String password = getPassword();
             if (password != null && !password.isBlank()) {
                 JPasswordField passwordField = new JPasswordField();
@@ -181,7 +182,6 @@ public class AppProcess {
             } else {
                 commandRun = "";
             }
-            this.needReset = false;
             Cmd cmd = new Cmd();
             if (!cmd.insertCommand(String.format("cd \"%s\" && start \"%s\" /MIN %s \"%s\" \"%s\" \"%s\"",
                     runFile.getParent(), getWindowTitle(), commandRun,
@@ -236,7 +236,7 @@ public class AppProcess {
         if (this.appModel == null) {
             return null;
         }
-        return runFile.toFile();
+        return runFile.toFile().getAbsoluteFile().getParentFile();
     }
 
     public boolean isUpdateStatus() {
