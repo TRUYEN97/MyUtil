@@ -427,7 +427,7 @@ public class FileUploadPn extends Panelupdate {
         setFileName(null);
         setDir(null);
         setVersion("1.0.0");
-        setCheckBox(false);
+        setCheckBox(true);
         setName(null);
         this.txtAreaLocalFolder.setText(null);
         this.txtAreaDes.setText(null);
