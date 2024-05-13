@@ -183,10 +183,13 @@ public class AppProcess {
                 commandRun = "";
             }
             Cmd cmd = new Cmd();
-            if (!cmd.insertCommand(String.format("cd \"%s\" && start \"%s\" /MIN %s \"%s\" \"%s\" \"%s\"",
+            String command = String.format("cd \"%s\" && start \"%s\" /MIN %s \"%s\" \"%s\" \"%s\"",
                     runFile.getParent(), getWindowTitle(), commandRun,
-                    fileName, version, this.appModel.getName()))) {
+                    fileName, version, this.appModel.getName());
+            if(fileName.toLowerCase().endsWith(".bat")){
+                command = String.format("cd \"%s\" && \"%s\"",runFile.getParent(), fileName);
             }
+            cmd.insertCommand(command);
             cmd.waitFor();
         });
         thread.start();
